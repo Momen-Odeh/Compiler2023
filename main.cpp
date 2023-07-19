@@ -9,5 +9,6 @@ using namespace std;
 int main(int argc, char *argv[])
 {
     SCANNER scanner;
+
     return 0;//a.exec();
 }
