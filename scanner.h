@@ -1,5 +1,6 @@
 #ifndef SCANNER_H
 #define SCANNER_H
+#include "fd.h"
 //Token types enumeration
 enum LEXEME_TYPE
 {
@@ -34,7 +35,7 @@ struct	TOKEN
 
 class SCANNER{
 private:
-    //FileDescriptor *Fd; //*********************************************************************************************
+    FileDescriptor *Fd;
     // define your functions ..
     //I would define the following functions..
     // void skip_comments();
@@ -42,11 +43,11 @@ private:
     // TOKEN *get_id(..)
     // TOKEN *get_string(..)
     // TOKEN *get_int(..) // gets integers and floats
-
+    LEXEME_TYPE getClass(char c);
 
 public:
     SCANNER();
-    //SCANNER (FileDescriptor *fd){ Fd = fd; /* write other code if needed*/};//*********************************************************************************************
+    SCANNER (FileDescriptor *fd);
     TOKEN* Scan();
     // You may define it as TOKEN *Scan(FileDescriptor *fd);
 

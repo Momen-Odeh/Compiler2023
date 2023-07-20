@@ -8,7 +8,9 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-    SCANNER scanner;
+    FileDescriptor * fd = new FileDescriptor("example.txt");
+    SCANNER scanner(fd);
+    cout << scanner.Scan()<<endl;
 
     return 0;//a.exec();
 }

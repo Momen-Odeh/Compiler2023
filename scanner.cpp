@@ -18,27 +18,48 @@ LEXEME_TYPE key_type[] = {
     KW_OD, KW_OR, KW_PROCEDURE, KW_PROGRAM,KW_READ, KW_RETURN,
     KW_STRING, KW_THEN, KW_TO, KW_TRUE, KW_VAR, KW_WHILE, KW_WRITE
 };
-char getC(){
-    return 'a';
-}
-bool isDigit(char c)
+
+LEXEME_TYPE SCANNER::getClass(char c)
 {
-    if(c>='0' && c<='9')
+    if(isalpha(c) || c == '_')
     {
-        return true;
+        return LX_IDENTIFIER;
     }
-    return false;
+    else if(isdigit(c) || c == '-' || c=='+')
+    {
+        return LX_INTEGER;
+    }
+    else if(c == '"')
+    {
+        return LX_STRING;
+    }
 }
 
 SCANNER::SCANNER()
 {
 
-    cout <<"Ddddddddddddd";
-
 }
-
-TOKEN* Scan()
+SCANNER::SCANNER (FileDescriptor *fd)
 {
-    char c = getC();
+    Fd = fd;
+}
+TOKEN* SCANNER::Scan()
+{
+    char c = Fd->GetChar();
+    cout<<getClass(c);
+    if(getClass(c) == LX_IDENTIFIER)
+    {
+        c= Fd->GetChar();
+        while(isalpha(c) || c == '_' ||isdigit(c))c= Fd->GetChar();
+
+    }
+    else if(getClass(c) == LX_INTEGER)
+    {
+
+    }
+    else if(getClass(c) == LX_STRING)
+    {
+
+    }
     return 0;
 }
