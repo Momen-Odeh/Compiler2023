@@ -10,7 +10,8 @@ int main(int argc, char *argv[])
 {
     FileDescriptor * fd = new FileDescriptor("example.txt");
     SCANNER scanner(fd);
-    cout << scanner.Scan()<<endl;
-
-    return 0;//a.exec();
+    TOKEN *token = scanner.Scan();
+    if(token != nullptr)
+        cout<<token->type<<endl;
+    return 0;
 }

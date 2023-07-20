@@ -52,7 +52,7 @@ public:
     //read line and store it in buffer
     void ReadLine();
 
-    void UngetChar(char c);
+    void UngetChar();
 
     // Opens the file descriptor
     bool open_file_descriptor(char *filename);

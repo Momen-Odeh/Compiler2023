@@ -1,6 +1,7 @@
 #include "fd.h"
 #include <cstring>
-
+#include <iostream>
+using namespace std;
 // Constructor to open a file
 FileDescriptor::FileDescriptor(char *FileName) :
     fp(nullptr),                    // Initialize the FILE pointer to null
@@ -101,11 +102,16 @@ char FileDescriptor::GetChar() {
 
 // Reports the error specifying the current line and character
 void FileDescriptor::ReportError(char *msg) {
-    fprintf(stderr, "%s at line %d, character %d\n", msg, line_number, char_number);
+    cout<< buffer <<endl;
+    for(int i=0;i<char_number;i++){
+        cout<<' ';
+    }
+    cout << '^'<<endl;
+    cerr << msg << endl;
 }
 
 
-void FileDescriptor::UngetChar(char c) {
+void FileDescriptor::UngetChar() {
     if (char_number > 0) {
         char_number--;
     }

@@ -39,7 +39,6 @@ private:
     // define your functions ..
     //I would define the following functions..
     // void skip_comments();
-    // bool check_keyword(...)
     // TOKEN *get_id(..)
     // TOKEN *get_string(..)
     // TOKEN *get_int(..) // gets integers and floats
@@ -49,6 +48,8 @@ public:
     SCANNER();
     SCANNER (FileDescriptor *fd);
     TOKEN* Scan();
+    bool isDelimiter(char c);
+    int check_keyword(char *str);
     // You may define it as TOKEN *Scan(FileDescriptor *fd);
 
 
