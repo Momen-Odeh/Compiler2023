@@ -70,11 +70,10 @@ void FileDescriptor::Close() {
 
 //read line from file and put it in buffer
 void FileDescriptor::ReadLine(){
-    delete[] buffer;//delete the previous data in buffer
-    buffer = new char[buf_size];//reinitialize buffer
     char c;
     line_length=0;
     while ((c = fgetc(fp)) != EOF) {
+        if(line_length==0)memset(buffer, 0,buf_size);
         if (line_length == buf_size - 1) {
             // Resize the buffer by doubling the size
             char* new_buffer = new char[buf_size * 2];
@@ -84,25 +83,31 @@ void FileDescriptor::ReadLine(){
             buf_size *= 2;
         }
         buffer[line_length++] = c;
-        if(c == '\n')break;
+        if(c == '\n'){
+            cout<<"see \\n"<<endl;
+            break;
+        }
     }
-    if(c==EOF){
-        buffer[line_length++]=EOF;
+    if(c == EOF){
+        buffer[line_length]=c;
+        cout<<"------------------------see EOF"<<endl;
     }
-    buffer[line_length] = '\0';
-    if(line_length==0) buffer[0]=EOF;
-    else line_number++;
+    if(line_length==0){
+//        buffer[0]=EOF;
+    }
+    else{
+        line_number++;
+    }
 }
 
 // Gets the current character in the file
 char FileDescriptor::GetChar() {
     char c;
-    if(char_number > line_length || line_length==0){
+    if(char_number > line_length-1 || line_length==0){
         ReadLine();
         char_number=0;
     }
     c = buffer[char_number++];
-    if(c==EOF)char_number=0;
     return c;
 }
 

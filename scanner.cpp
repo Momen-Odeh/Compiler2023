@@ -34,6 +34,9 @@ LEXEME_TYPE SCANNER::getClass(char c)
     {
         return LX_STRING;
     }
+    else{
+        return LX_NOTMATCH;
+    }
 }
 
 int SCANNER::check_keyword(char *str)
@@ -50,7 +53,7 @@ int SCANNER::check_keyword(char *str)
 
 bool SCANNER::isDelimiter(char c)
 {
-    if(c==' '||c==':'||c=='='||c=='+'||c=='-'||c=='*'||c=='/'||c=='<'||c=='>'||c==';'||'\n'){
+    if(c==' '||c==':'||c=='='||c=='+'||c=='-'||c=='*'||c=='/'||c=='<'||c=='>'||c==';'||c=='\n'||c==EOF){
         return true;
     }
     return false;
@@ -70,6 +73,7 @@ TOKEN* SCANNER::Scan()
     char* charPtr;
     string currentVal="";
     char c = Fd->GetChar();
+//    cout<<(int)c<<"---------------in scanner"<<endl;//-----------------------------------------
     if(getClass(c) == LX_IDENTIFIER)
     {
         currentVal+=c;
@@ -106,6 +110,7 @@ TOKEN* SCANNER::Scan()
             c= Fd->GetChar();
         }
         if(c=='.'){
+            currentVal+=c;
             bool thereIsDigitInNext = false;
             c= Fd->GetChar();
             while(isdigit(c)){
@@ -113,11 +118,11 @@ TOKEN* SCANNER::Scan()
                 c= Fd->GetChar();
                 thereIsDigitInNext = true;
             }
-            Fd->UngetChar();
             if(!thereIsDigitInNext){
                 Fd->ReportError("Bad floating point number");
             }
             else if(isDelimiter(c)){
+                Fd->UngetChar();
                 charPtr = new char[currentVal.length() + 1];
                 strcpy(charPtr, currentVal.c_str());
                 token->type=LX_FLOAT;
@@ -307,10 +312,12 @@ TOKEN* SCANNER::Scan()
             }
         }
         else{
-            while(c!='\n')c=Fd->GetChar();
+            while(c!='\n' && c!=EOF){
+                c=Fd->GetChar();
+            }
         }
     }
-    else if(c=='\n' || c==' ' || c=='\t' || (int)c==12);
+    else if(c=='\n' || c==' ' || c=='\t' || (int)c==12)return nullptr;
     else{
         Fd->ReportError("illegal input");
     }
