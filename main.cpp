@@ -13,10 +13,11 @@ int main(int argc, char *argv[])
     TOKEN *token;
     while(1){
         token = scanner.Scan();
-        if(token != nullptr)
+        if(token != nullptr){
             cout<<token->str_ptr<<endl;
+            if(token->type==LX_EOF)break;
+        }
 
-        if(token->type==LX_EOF)break;
     }
     return 0;
 }
