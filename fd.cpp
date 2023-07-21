@@ -109,7 +109,7 @@ void FileDescriptor::ReportError(char *msg) {
         cout<<' ';
     }
     cout << '^'<<endl;
-    cerr << "Error: " << '"' << msg << '"' << " on line " << line_number << " of "<< GetFileName() << endl;
+    cout << "Error: " << '"' << msg << '"' << " on line " << line_number << " of "<< GetFileName() << endl;
 }
 
 

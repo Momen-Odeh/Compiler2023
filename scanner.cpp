@@ -50,7 +50,7 @@ int SCANNER::check_keyword(char *str)
 
 bool SCANNER::isDelimiter(char c)
 {
-    if(c==' '||c==':'||c=='='||c=='+'||c=='-'||c=='*'||c=='/'||c=='<'||c=='>'||c==';'){
+    if(c==' '||c==':'||c=='='||c=='+'||c=='-'||c=='*'||c=='/'||c=='<'||c=='>'||c==';'||'\n'||EOF){
         return true;
     }
     return false;
@@ -66,6 +66,8 @@ SCANNER::SCANNER (FileDescriptor *fd)
 }
 TOKEN* SCANNER::Scan()
 {
+    TOKEN *token = new TOKEN;
+    char* charPtr;
     string currentVal="";
     char c = Fd->GetChar();
     if(getClass(c) == LX_IDENTIFIER)
@@ -78,28 +80,61 @@ TOKEN* SCANNER::Scan()
         }
         Fd->UngetChar();
         if(isDelimiter(c)){
-            char* charPtr = new char[currentVal.length() + 1];
+            charPtr = new char[currentVal.length() + 1];
             strcpy(charPtr, currentVal.c_str());
             int index = check_keyword(charPtr);
             if(index == -1){
-                TOKEN *token = new TOKEN;
                 token->type=LX_IDENTIFIER;
                 token->str_ptr = charPtr;
                 return token;
             }
             else{
-                TOKEN *token = new TOKEN;
                 token->type = key_type[index];
                 token->str_ptr = keyword[index];
                 return token;
             }
         }else{
-            Fd->ReportError("Error: illegal token");
+            Fd->ReportError("illegal token");
         }
     }
     else if(getClass(c) == LX_INTEGER)
     {
-
+        currentVal+=c;
+        c= Fd->GetChar();
+        while(isdigit(c)){
+            currentVal+=c;
+            c= Fd->GetChar();
+        }
+        if(c=='.'){
+            bool thereIsDigitInNext = false;
+            c= Fd->GetChar();
+            while(isdigit(c)){
+                currentVal+=c;
+                c= Fd->GetChar();
+                thereIsDigitInNext = true;
+            }
+            Fd->UngetChar();
+            if(!thereIsDigitInNext){
+                Fd->ReportError("Bad floating point number");
+            }
+            else{
+            charPtr = new char[currentVal.length() + 1];
+            strcpy(charPtr, currentVal.c_str());
+            token->type=LX_FLOAT;
+            token->str_ptr = charPtr;
+            return token;
+            }
+        }
+        else if(isDelimiter(c)){
+            charPtr = new char[currentVal.length() + 1];
+            strcpy(charPtr, currentVal.c_str());
+            token->type=LX_INTEGER;
+            token->str_ptr = charPtr;
+            return token;
+        }
+        else{
+            Fd->ReportError("Bad number");
+        }
     }
     else if(getClass(c) == LX_STRING)
     {
