@@ -74,7 +74,7 @@ void FileDescriptor::ReadLine(){
     buffer = new char[buf_size];//reinitialize buffer
     char c;
     line_length=0;
-    while ((c = fgetc(fp)) != EOF && c != '\n') {
+    while ((c = fgetc(fp)) != EOF) {
         if (line_length == buf_size - 1) {
             // Resize the buffer by doubling the size
             char* new_buffer = new char[buf_size * 2];
@@ -84,6 +84,10 @@ void FileDescriptor::ReadLine(){
             buf_size *= 2;
         }
         buffer[line_length++] = c;
+        if(c == '\n')break;
+    }
+    if(c==EOF){
+        buffer[line_length++]=EOF;
     }
     buffer[line_length] = '\0';
     if(line_length==0) buffer[0]=EOF;
@@ -110,6 +114,7 @@ void FileDescriptor::ReportError(char *msg) {
     }
     cout << '^'<<endl;
     cout << "Error: " << '"' << msg << '"' << " on line " << line_number << " of "<< GetFileName() << endl;
+    exit(1);
 }
 
 
