@@ -50,7 +50,7 @@ int SCANNER::check_keyword(char *str)
 
 bool SCANNER::isDelimiter(char c)
 {
-    if(c==' '||c==':'||c=='='||c=='+'||c=='-'||c=='*'||c=='/'||c=='<'||c=='>'||c==';'||'\n'||EOF){
+    if(c==' '||c==':'||c=='='||c=='+'||c=='-'||c=='*'||c=='/'||c=='<'||c=='>'||c==';'||'\n'){
         return true;
     }
     return false;
@@ -138,7 +138,171 @@ TOKEN* SCANNER::Scan()
     }
     else if(getClass(c) == LX_STRING)
     {
-
+        currentVal+=c;
+        c= Fd->GetChar();
+        while(c != '"') {
+            if(c == '\n')
+                Fd->ReportError("illegal string");
+            currentVal+=c;
+            c= Fd->GetChar();
+        }
+        charPtr = new char[currentVal.length() + 1];
+        strcpy(charPtr, currentVal.c_str());
+        token->type=LX_STRING;
+        token->str_ptr = charPtr;
+        return token;
+    }
+    else if(c==':'){
+        c= Fd->GetChar();
+        if(c=='='){
+            token->type=LX_COLON_EQ;
+            token->str_ptr = ":=";
+            return token;
+        }
+        else{
+            Fd->UngetChar();
+            token->type=LX_COLON;
+            token->str_ptr = ":";
+            return token;
+        }
+    }
+    else if(c=='('){
+        token->type=LX_LPAREN;
+        token->str_ptr = "(";
+        return token;
+    }
+    else if(c==')'){
+        token->type=LX_RPAREN;
+        token->str_ptr = ")";
+        return token;
+    }
+    else if(c=='['){
+        token->type=LX_LSBRACKET;
+        token->str_ptr = "[";
+        return token;
+    }
+    else if(c==']'){
+        token->type=LX_RSBRACKET;
+        token->str_ptr = "]";
+        return token;
+    }
+    else if(c=='{'){
+        token->type=LX_LCBRACKET;
+        token->str_ptr = "{";
+        return token;
+    }
+    else if(c=='}'){
+        token->type=LX_RCBRACKET;
+        token->str_ptr = "}";
+        return token;
+    }
+    else if(c=='.'){
+        token->type=LX_DOT;
+        token->str_ptr = ".";
+        return token;
+    }
+    else if(c==';'){
+        token->type=LX_SEMICOLON;
+        token->str_ptr = ";";
+        return token;
+    }
+    else if(c==','){
+        token->type=LX_COMMA;
+        token->str_ptr = ",";
+        return token;
+    }
+    else if(c=='+'){
+        token->type=LX_PLUS;
+        token->str_ptr = "+";
+        return token;
+    }
+    else if(c=='-'){
+        token->type=LX_MINUS;
+        token->str_ptr = "-";
+        return token;
+    }
+    else if(c=='*'){
+        token->type=LX_STAR;
+        token->str_ptr = "*";
+        return token;
+    }
+    else if(c=='\\'){
+        token->type=LX_SLASH;
+        token->str_ptr = "\\";
+        return token;
+    }
+    else if(c=='='){
+        token->type=LX_EQ;
+        token->str_ptr = "=";
+        return token;
+    }
+    else if(c=='!'){
+        c=Fd->GetChar();
+        if(c=='='){
+            token->type=LX_NEQ;
+            token->str_ptr = "!=";
+            return token;
+        }
+        else{
+            Fd->UngetChar();
+            Fd->ReportError("illegal operation");
+        }
+    }
+    else if(c=='<'){
+        c=Fd->GetChar();
+        if(c=='='){
+        token->type=LX_LE;
+        token->str_ptr = "<=";
+        return token;
+        }
+        else{
+            Fd->UngetChar();
+            token->type=LX_LT;
+            token->str_ptr = "<";
+            return token;
+        }
+    }
+    else if(c=='>'){
+        c=Fd->GetChar();
+        if(c=='='){
+        token->type=LX_GE;
+        token->str_ptr = ">=";
+        return token;
+        }
+        else{
+            Fd->UngetChar();
+            token->type=LX_GT;
+            token->str_ptr = ">";
+            return token;
+        }
+    }
+    else if(c==EOF){
+        token->type=LX_EOF;
+        token->str_ptr = "EOF";
+        return token;
+    }
+    else if(c=='#'){
+        c=Fd->GetChar();
+        if(c=='#'){
+            while(1){
+                c=Fd->GetChar();
+                while (c!='#') {
+                    if(c==EOF){
+                        Fd->ReportError("Comment Not Closed");
+                    }
+                    c=Fd->GetChar();
+                }
+                c=Fd->GetChar();
+                if(c=='#')break;
+            }
+        }
+        else{
+            while(c!='\n')c=Fd->GetChar();
+        }
+    }
+    else if(c=='\n' || c==' ' || c=='\t' || (int)c==12);
+    else{
+        Fd->ReportError("illegal input");
     }
     return nullptr;
 }
