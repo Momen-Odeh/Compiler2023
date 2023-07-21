@@ -70,6 +70,8 @@ void FileDescriptor::Close() {
 
 //read line from file and put it in buffer
 void FileDescriptor::ReadLine(){
+    delete[] buffer;//delete the previous data in buffer
+    buffer = new char[buf_size];//reinitialize buffer
     char c;
     line_length=0;
     while ((c = fgetc(fp)) != EOF && c != '\n') {
@@ -107,7 +109,7 @@ void FileDescriptor::ReportError(char *msg) {
         cout<<' ';
     }
     cout << '^'<<endl;
-    cerr << msg << endl;
+    cerr << "Error: " << '"' << msg << '"' << " on line " << line_number << " of "<< GetFileName() << endl;
 }
 
 
