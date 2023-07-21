@@ -1,6 +1,6 @@
-#include <iostream>
-#include "fd.h"
-
+//#include <iostream>
+//#include "fd.h"
+//using namespace std;
 //int main() {
 //    FileDescriptor fd("example.txt");
 
@@ -15,6 +15,7 @@
 //    char line;
 //    while ((line = fd.GetChar()) != EOF) {
 //        std::cout << "Line " << fd.GetLineNum()<< ": "  <<fd.GetCharNum() << ": " << line << std::endl;
+//        if(line=='\n') cout<< "new line"<<endl;
 //    }
 
 //    std::cout << "Last line number: " << fd.GetLineNum() << std::endl;

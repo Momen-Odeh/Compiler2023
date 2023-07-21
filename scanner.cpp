@@ -94,7 +94,7 @@ TOKEN* SCANNER::Scan()
                 return token;
             }
         }else{
-            Fd->ReportError("illegal token");
+            Fd->ReportError("illegal identifier token");
         }
     }
     else if(getClass(c) == LX_INTEGER)
@@ -117,12 +117,15 @@ TOKEN* SCANNER::Scan()
             if(!thereIsDigitInNext){
                 Fd->ReportError("Bad floating point number");
             }
+            else if(isDelimiter(c)){
+                charPtr = new char[currentVal.length() + 1];
+                strcpy(charPtr, currentVal.c_str());
+                token->type=LX_FLOAT;
+                token->str_ptr = charPtr;
+                return token;
+            }
             else{
-            charPtr = new char[currentVal.length() + 1];
-            strcpy(charPtr, currentVal.c_str());
-            token->type=LX_FLOAT;
-            token->str_ptr = charPtr;
-            return token;
+                Fd->ReportError("illegal floating point number");
             }
         }
         else if(isDelimiter(c)){
@@ -146,11 +149,18 @@ TOKEN* SCANNER::Scan()
             currentVal+=c;
             c= Fd->GetChar();
         }
-        charPtr = new char[currentVal.length() + 1];
-        strcpy(charPtr, currentVal.c_str());
-        token->type=LX_STRING;
-        token->str_ptr = charPtr;
-        return token;
+        c= Fd->GetChar();
+        Fd->UngetChar();
+        if(isDelimiter(c)){
+            charPtr = new char[currentVal.length() + 1];
+            strcpy(charPtr, currentVal.c_str());
+            token->type=LX_STRING;
+            token->str_ptr = charPtr;
+            return token;
+        }
+        else{
+            Fd->ReportError("illegal String");
+        }
     }
     else if(c==':'){
         c= Fd->GetChar();
@@ -226,9 +236,9 @@ TOKEN* SCANNER::Scan()
         token->str_ptr = "*";
         return token;
     }
-    else if(c=='\\'){
+    else if(c=='/'){
         token->type=LX_SLASH;
-        token->str_ptr = "\\";
+        token->str_ptr = "/";
         return token;
     }
     else if(c=='='){
