@@ -4,6 +4,14 @@
 #include <cstring>
 using namespace std;
 //SCANNER:
+//Regular Expressions
+/*
+    identifier --> ([a-z,A-Z]|'_').([a-z,A-Z]|'_'|[0-9])*
+    integer --> (-|L).[0-9]+
+    float --> (-|L).[0-9]+.'.'.[0-9]+
+    string --> '"'.ch*.'"'
+
+*/
 int keys = 30; /* number of keywords */
 char* keyword[] = {
     "and", "begin", "boolean", "by", "constant",
@@ -26,7 +34,7 @@ LEXEME_TYPE SCANNER::getClass(char c)
     {
         return LX_IDENTIFIER;
     }
-    else if(isdigit(c) || c == '-' || c=='+')
+    else if(isdigit(c) || c == '-')
     {
         return LX_INTEGER;
     }
@@ -53,7 +61,8 @@ int SCANNER::check_keyword(char *str)
 
 bool SCANNER::isDelimiter(char c)
 {
-    if(c==' '||c==':'||c=='='||c=='+'||c=='-'||c=='*'||c=='/'||c=='<'||c=='>'||c==';'||c=='\n'||c=='#'||c==EOF){
+    if(c==' '||c==':'||c=='='||c=='+'||c=='-'||c=='*'||c=='/'||c=='<'||c=='>'||c==';'
+         ||c=='\n'||c=='#'||(int)c==12||c=='\t'||c==EOF){
         return true;
     }
     return false;
@@ -102,7 +111,14 @@ TOKEN* SCANNER::Scan()
     else if(getClass(c) == LX_INTEGER)
     {
         currentVal+=c;
+        char prev =c;
         c= Fd->GetChar();
+        if(prev=='-'&&!isdigit(c)){
+            Fd->UngetChar();
+            token->type=LX_MINUS;
+            token->str_ptr = "-";
+            return token;
+        }
         while(isdigit(c)){
             currentVal+=c;
             c= Fd->GetChar();
@@ -149,14 +165,15 @@ TOKEN* SCANNER::Scan()
         currentVal+=c;
         c= Fd->GetChar();
         while(c != '"') {
-            if(c == '\n')
+            if(c == '\n'||c==EOF)
                 Fd->ReportError("illegal string");
             currentVal+=c;
             c= Fd->GetChar();
         }
+        currentVal+=c;
         c= Fd->GetChar();
-        Fd->UngetChar();
         if(isDelimiter(c)){
+            Fd->UngetChar();
             charPtr = new char[currentVal.length() + 1];
             strcpy(charPtr, currentVal.c_str());
             token->type=LX_STRING;

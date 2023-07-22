@@ -17,7 +17,6 @@ int main(int argc, char *argv[])
             cout<<token->str_ptr<<endl;
             if(token->type==LX_EOF)break;
         }
-
     }
     return 0;
 }
