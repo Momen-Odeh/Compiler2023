@@ -53,7 +53,7 @@ int SCANNER::check_keyword(char *str)
 
 bool SCANNER::isDelimiter(char c)
 {
-    if(c==' '||c==':'||c=='='||c=='+'||c=='-'||c=='*'||c=='/'||c=='<'||c=='>'||c==';'||c=='\n'||c==EOF){
+    if(c==' '||c==':'||c=='='||c=='+'||c=='-'||c=='*'||c=='/'||c=='<'||c=='>'||c==';'||c=='\n'||c=='#'||c==EOF){
         return true;
     }
     return false;
@@ -61,7 +61,6 @@ bool SCANNER::isDelimiter(char c)
 
 SCANNER::SCANNER()
 {
-
 }
 SCANNER::SCANNER (FileDescriptor *fd)
 {
@@ -73,7 +72,6 @@ TOKEN* SCANNER::Scan()
     char* charPtr;
     string currentVal="";
     char c = Fd->GetChar();
-//    cout<<(int)c<<"---------------in scanner"<<endl;//-----------------------------------------
     if(getClass(c) == LX_IDENTIFIER)
     {
         currentVal+=c;
@@ -82,8 +80,8 @@ TOKEN* SCANNER::Scan()
             currentVal+=c;
             c= Fd->GetChar();
         }
-        Fd->UngetChar();
         if(isDelimiter(c)){
+            Fd->UngetChar();
             charPtr = new char[currentVal.length() + 1];
             strcpy(charPtr, currentVal.c_str());
             int index = check_keyword(charPtr);
@@ -118,11 +116,11 @@ TOKEN* SCANNER::Scan()
                 c= Fd->GetChar();
                 thereIsDigitInNext = true;
             }
+            Fd->UngetChar();
             if(!thereIsDigitInNext){
                 Fd->ReportError("Bad floating point number");
             }
             else if(isDelimiter(c)){
-                Fd->UngetChar();
                 charPtr = new char[currentVal.length() + 1];
                 strcpy(charPtr, currentVal.c_str());
                 token->type=LX_FLOAT;
@@ -134,6 +132,7 @@ TOKEN* SCANNER::Scan()
             }
         }
         else if(isDelimiter(c)){
+            Fd->UngetChar();
             charPtr = new char[currentVal.length() + 1];
             strcpy(charPtr, currentVal.c_str());
             token->type=LX_INTEGER;
@@ -141,6 +140,7 @@ TOKEN* SCANNER::Scan()
             return token;
         }
         else{
+            Fd->UngetChar();
             Fd->ReportError("Bad number");
         }
     }
@@ -309,6 +309,9 @@ TOKEN* SCANNER::Scan()
                 }
                 c=Fd->GetChar();
                 if(c=='#')break;
+                else if(c==EOF)
+                    Fd->ReportError("Comment Not Closed");
+
             }
         }
         else{

@@ -84,35 +84,34 @@ void FileDescriptor::ReadLine(){
         }
         buffer[line_length++] = c;
         if(c == '\n'){
-            cout<<"see \\n"<<endl;
             break;
         }
     }
-    if(c == EOF){
-        buffer[line_length]=c;
-        cout<<"------------------------see EOF"<<endl;
-    }
-    if(line_length==0){
-//        buffer[0]=EOF;
-    }
-    else{
-        line_number++;
+    line_number++;
+    if(c==EOF){
+        buffer[line_length++]=c;
     }
 }
 
 // Gets the current character in the file
 char FileDescriptor::GetChar() {
-    char c;
-    if(char_number > line_length-1 || line_length==0){
+    char c=EOF;
+    if((char_number > line_length-1 || line_length==0)&&(buffer[line_length-1]!=EOF)){
         ReadLine();
         char_number=0;
     }
-    c = buffer[char_number++];
+    if(char_number<line_length){
+        c = buffer[char_number++];
+    }
     return c;
 }
 
 // Reports the error specifying the current line and character
 void FileDescriptor::ReportError(char *msg) {
+    if(buffer[line_length-1] == EOF || buffer[line_length-1] == '\n'){
+        buffer[line_length-1]=0;
+        char_number--;
+    }
     cout<< buffer <<endl;
     for(int i=0;i<char_number;i++){
         cout<<' ';
