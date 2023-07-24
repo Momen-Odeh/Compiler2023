@@ -5,12 +5,13 @@
 using namespace std;
 //SCANNER:
 //Regular Expressions
+//L === lambda
 /*
     identifier --> ([a-z,A-Z]|'_').([a-z,A-Z]|'_'|[0-9])*
-    integer --> (-|L).[0-9]+
+    integer --> (-|L).[0-9]+.(('.'.[0-9]+)|L)
     float --> (-|L).[0-9]+.'.'.[0-9]+
     string --> '"'.ch*.'"'
-
+    comment --> '#'.'#'.ch*.(('#'.'#')|'\n'|EOF)
 */
 int keys = 30; /* number of keywords */
 char* keyword[] = {
@@ -20,6 +21,8 @@ char* keyword[] = {
     "program", "read", "return", "string", "then", "to", "true",
     "var", "while", "write"
 };
+
+
 LEXEME_TYPE key_type[] = {
     KW_AND, KW_BEGIN, KW_BOOLEAN, KW_BY, KW_CONSTANT,
     KW_DO, KW_ELSE, KW_END, KW_FALSE, KW_FI,KW_FLOAT,
@@ -27,6 +30,7 @@ LEXEME_TYPE key_type[] = {
     KW_OD, KW_OR, KW_PROCEDURE, KW_PROGRAM,KW_READ, KW_RETURN,
     KW_STRING, KW_THEN, KW_TO, KW_TRUE, KW_VAR, KW_WHILE, KW_WRITE
 };
+
 
 LEXEME_TYPE SCANNER::getClass(char c)
 {
@@ -42,16 +46,20 @@ LEXEME_TYPE SCANNER::getClass(char c)
     {
         return LX_STRING;
     }
-    else{
+    else
+    {
         return LX_NOTMATCH;
     }
 }
 
+
 int SCANNER::check_keyword(char *str)
 {
     int keywordIndex = -1;
-    for(int i=0;i < keys;i++){
-        if(strcmp(keyword[i],str) == 0){
+    for(int i=0;i < keys;i++)
+    {
+        if(strcmp(keyword[i],str) == 0)
+        {
             keywordIndex= i;
             break;
         }
@@ -62,19 +70,25 @@ int SCANNER::check_keyword(char *str)
 bool SCANNER::isDelimiter(char c)
 {
     if(c==' '||c==':'||c=='='||c=='+'||c=='-'||c=='*'||c=='/'||c=='<'||c=='>'||c==';'
-         ||c=='\n'||c=='#'||(int)c==12||c=='\t'||c==EOF){
+        ||c=='\n'||c=='#'||(int)c==12||c=='\t'||c==EOF)
+    {
         return true;
     }
     return false;
 }
 
+
 SCANNER::SCANNER()
 {
 }
+
+
 SCANNER::SCANNER (FileDescriptor *fd)
 {
     Fd = fd;
 }
+
+
 TOKEN* SCANNER::Scan()
 {
     TOKEN *token = new TOKEN;
@@ -83,261 +97,353 @@ TOKEN* SCANNER::Scan()
     char c = Fd->getChar();
     if(getClass(c) == LX_IDENTIFIER)
     {
-        currentVal+=c;
-        c= Fd->getChar();
-        while(isalpha(c) || c == '_' ||isdigit(c)){
-            currentVal+=c;
-            c= Fd->getChar();
-        }
-        if(isDelimiter(c)){
-            Fd->ungetChar();
-            charPtr = new char[currentVal.length() + 1];
-            strcpy(charPtr, currentVal.c_str());
-            int index = check_keyword(charPtr);
-            if(index == -1){
-                token->type=LX_IDENTIFIER;
-                token->str_ptr = charPtr;
-                return token;
-            }
-            else{
-                token->type = key_type[index];
-                token->str_ptr = keyword[index];
-                return token;
-            }
-        }else{
-            Fd->reportError("illegal identifier token");
-        }
+        return getId(c);
     }
     else if(getClass(c) == LX_INTEGER)
     {
-        currentVal+=c;
-        char prev =c;
-        c= Fd->getChar();
-        if(prev=='-'&&!isdigit(c)){
-            Fd->ungetChar();
-            token->type=LX_MINUS;
-            token->str_ptr = "-";
-            return token;
-        }
-        while(isdigit(c)){
-            currentVal+=c;
-            c= Fd->getChar();
-        }
-        if(c=='.'){
-            currentVal+=c;
-            bool thereIsDigitInNext = false;
-            c= Fd->getChar();
-            while(isdigit(c)){
-                currentVal+=c;
-                c= Fd->getChar();
-                thereIsDigitInNext = true;
-            }
-            Fd->ungetChar();
-            if(!thereIsDigitInNext){
-                Fd->reportError("Bad floating point number");
-            }
-            else if(isDelimiter(c)){
-                charPtr = new char[currentVal.length() + 1];
-                strcpy(charPtr, currentVal.c_str());
-                token->type=LX_FLOAT;
-                token->str_ptr = charPtr;
-                return token;
-            }
-            else{
-                Fd->reportError("illegal floating point number");
-            }
-        }
-        else if(isDelimiter(c)){
-            Fd->ungetChar();
-            charPtr = new char[currentVal.length() + 1];
-            strcpy(charPtr, currentVal.c_str());
-            token->type=LX_INTEGER;
-            token->str_ptr = charPtr;
-            return token;
-        }
-        else{
-            Fd->ungetChar();
-            Fd->reportError("Bad number");
-        }
+        return getInt(c);
     }
     else if(getClass(c) == LX_STRING)
     {
-        currentVal+=c;
-        c= Fd->getChar();
-        while(c != '"') {
-            if(c == '\n'||c==EOF)
-                Fd->reportError("illegal string");
-            currentVal+=c;
-            c= Fd->getChar();
-        }
-        currentVal+=c;
-        c= Fd->getChar();
-        if(isDelimiter(c)){
-            Fd->ungetChar();
-            charPtr = new char[currentVal.length() + 1];
-            strcpy(charPtr, currentVal.c_str());
-            token->type=LX_STRING;
-            token->str_ptr = charPtr;
-            return token;
-        }
-        else{
-            Fd->reportError("illegal String");
-        }
+        return getString(c);
     }
-    else if(c==':'){
+    else if(c==':')
+    {
         c= Fd->getChar();
-        if(c=='='){
-            token->type=LX_COLON_EQ;
+        if(c=='=')
+        {
+            token->type = LX_COLON_EQ;
             token->str_ptr = ":=";
             return token;
         }
-        else{
+        else
+        {
             Fd->ungetChar();
-            token->type=LX_COLON;
+            token->type = LX_COLON;
             token->str_ptr = ":";
             return token;
         }
     }
-    else if(c=='('){
-        token->type=LX_LPAREN;
+    else if(c=='(')
+    {
+        token->type = LX_LPAREN;
         token->str_ptr = "(";
         return token;
     }
-    else if(c==')'){
+    else if(c==')')
+    {
         token->type=LX_RPAREN;
         token->str_ptr = ")";
         return token;
     }
-    else if(c=='['){
-        token->type=LX_LSBRACKET;
+    else if(c=='[')
+    {
+        token->type = LX_LSBRACKET;
         token->str_ptr = "[";
         return token;
     }
-    else if(c==']'){
-        token->type=LX_RSBRACKET;
+    else if(c==']')
+    {
+        token->type = LX_RSBRACKET;
         token->str_ptr = "]";
         return token;
     }
-    else if(c=='{'){
+    else if(c=='{')
+    {
         token->type=LX_LCBRACKET;
         token->str_ptr = "{";
         return token;
     }
-    else if(c=='}'){
+    else if(c=='}')
+    {
         token->type=LX_RCBRACKET;
         token->str_ptr = "}";
         return token;
     }
-    else if(c=='.'){
-        token->type=LX_DOT;
+    else if(c=='.')
+    {
+        token->type = LX_DOT;
         token->str_ptr = ".";
         return token;
     }
-    else if(c==';'){
+    else if(c==';')
+    {
         token->type=LX_SEMICOLON;
         token->str_ptr = ";";
         return token;
     }
-    else if(c==','){
+    else if(c==',')
+    {
         token->type=LX_COMMA;
         token->str_ptr = ",";
         return token;
     }
-    else if(c=='+'){
+    else if(c=='+')
+    {
         token->type=LX_PLUS;
         token->str_ptr = "+";
         return token;
     }
-    else if(c=='-'){
+    else if(c=='-')
+    {
         token->type=LX_MINUS;
         token->str_ptr = "-";
         return token;
     }
-    else if(c=='*'){
+    else if(c=='*')
+    {
         token->type=LX_STAR;
         token->str_ptr = "*";
         return token;
     }
-    else if(c=='/'){
+    else if(c=='/')
+    {
         token->type=LX_SLASH;
         token->str_ptr = "/";
         return token;
     }
-    else if(c=='='){
+    else if(c=='=')
+    {
         token->type=LX_EQ;
         token->str_ptr = "=";
         return token;
     }
-    else if(c=='!'){
+    else if(c=='!')
+    {
         c=Fd->getChar();
-        if(c=='='){
+        if(c=='=')
+        {
             token->type=LX_NEQ;
             token->str_ptr = "!=";
             return token;
         }
-        else{
+        else
+        {
             Fd->ungetChar();
             Fd->reportError("illegal operation");
         }
     }
-    else if(c=='<'){
+    else if(c=='<')
+    {
         c=Fd->getChar();
-        if(c=='='){
+        if(c=='=')
+        {
         token->type=LX_LE;
         token->str_ptr = "<=";
         return token;
         }
-        else{
+        else
+        {
             Fd->ungetChar();
             token->type=LX_LT;
             token->str_ptr = "<";
             return token;
         }
     }
-    else if(c=='>'){
+    else if(c=='>')
+    {
         c=Fd->getChar();
-        if(c=='='){
+        if(c=='=')
+        {
         token->type=LX_GE;
         token->str_ptr = ">=";
         return token;
         }
-        else{
+        else
+        {
             Fd->ungetChar();
             token->type=LX_GT;
             token->str_ptr = ">";
             return token;
         }
     }
-    else if(c==EOF){
+    else if(c==EOF)
+    {
         token->type=LX_EOF;
         token->str_ptr = "EOF";
         return token;
     }
-    else if(c=='#'){
-        c=Fd->getChar();
-        if(c=='#'){
-            while(1){
-                c=Fd->getChar();
-                while (c!='#'&& c!='\n' && c!=EOF) {
-                    if(c==EOF){
-                        Fd->reportError("Comment Not Closed");
-                    }
-                    c=Fd->getChar();
-                }
-                if(c=='\n'||c==EOF)break;
-                c=Fd->getChar();
-                if(c=='#')break;
-
-            }
-        }
-        else{
-            Fd->ungetChar();
-            Fd->reportError("illegal input");
-        }
+    else if(c=='#')
+    {
+        skipComments();
     }
     else if(c=='\n' || c==' ' || c=='\t' || (int)c==12)return nullptr;
-    else{
+    else
+    {
         Fd->reportError("illegal input");
     }
     return nullptr;
 }
+
+
+void SCANNER::skipComments()
+{
+    char c=Fd->getChar();
+    if(c=='#')
+    {
+        while(1)
+        {
+            c=Fd->getChar();
+            while (c!='#'&& c!='\n' && c!=EOF)
+            {
+                if(c==EOF)
+                {
+                    Fd->reportError("Comment Not Closed");
+                }
+                c=Fd->getChar();
+            }
+            if(c=='\n'||c==EOF)break;
+            c=Fd->getChar();
+            if(c=='\n'||c==EOF||c=='#')break;
+
+        }
+    }
+    else
+    {
+        Fd->ungetChar();
+        Fd->reportError("illegal input");
+    }
+}
+
+
+TOKEN* SCANNER::getId(char firstChar)
+{
+    TOKEN *token = new TOKEN;
+    char* charPtr;
+    string currentVal="";
+    currentVal+=firstChar;
+    char c= Fd->getChar();
+    while(isalpha(c) || c == '_' ||isdigit(c))
+    {
+        currentVal+=c;
+        c= Fd->getChar();
+    }
+    if(isDelimiter(c))
+    {
+        Fd->ungetChar();
+        charPtr = new char[currentVal.length() + 1];
+        strcpy(charPtr, currentVal.c_str());
+        int index = check_keyword(charPtr);
+        if(index == -1)
+        {
+            token->type=LX_IDENTIFIER;
+            token->str_ptr = charPtr;
+            return token;
+        }
+        else
+        {
+            token->type = key_type[index];
+            token->str_ptr = keyword[index];
+            return token;
+        }
+    }
+    else
+    {
+        Fd->reportError("illegal identifier token");
+    }
+    return nullptr;
+}
+
+
+TOKEN* SCANNER::getString(char firstChar)
+{
+    TOKEN *token = new TOKEN;
+    char* charPtr;
+    string currentVal="";
+    currentVal+=firstChar;
+    char c= Fd->getChar();
+    while(c != '"')
+    {
+        if(c == '\n'||c==EOF)
+            Fd->reportError("illegal string");
+        currentVal+=c;
+        c= Fd->getChar();
+    }
+    currentVal+=c;
+    c= Fd->getChar();
+    if(isDelimiter(c))
+    {
+        Fd->ungetChar();
+        charPtr = new char[currentVal.length() + 1];
+        strcpy(charPtr, currentVal.c_str());
+        token->type = LX_STRING;
+        token->str_ptr = charPtr;
+        return token;
+    }
+    else
+    {
+        Fd->reportError("illegal String");
+    }
+    return nullptr;
+}
+
+
+TOKEN* SCANNER::getInt(char firstChar)
+{
+    TOKEN *token = new TOKEN;
+    char* charPtr;
+    string currentVal="";
+    currentVal+=firstChar;
+    char prev =firstChar;
+    char c= Fd->getChar();
+    if(prev=='-'&&!isdigit(c))
+    {
+        Fd->ungetChar();
+        token->type=LX_MINUS;
+        token->str_ptr = "-";
+        return token;
+    }
+    while(isdigit(c))
+    {
+        currentVal+=c;
+        c= Fd->getChar();
+    }
+    if(c=='.')
+    {
+        currentVal+=c;
+        bool thereIsDigitInNext = false;
+        c= Fd->getChar();
+        while(isdigit(c))
+        {
+            currentVal+=c;
+            c= Fd->getChar();
+            thereIsDigitInNext = true;
+        }
+        Fd->ungetChar();
+        if(!thereIsDigitInNext)
+        {
+            Fd->reportError("Bad floating point number");
+        }
+        else if(isDelimiter(c))
+        {
+            charPtr = new char[currentVal.length() + 1];
+            strcpy(charPtr, currentVal.c_str());
+            token->type = LX_FLOAT;
+            token->float_value = stof(charPtr);
+            token->str_ptr = charPtr;
+            return token;
+        }
+        else
+        {
+            Fd->reportError("illegal floating point number");
+        }
+    }
+    else if(isDelimiter(c))
+    {
+        Fd->ungetChar();
+        charPtr = new char[currentVal.length() + 1];
+        strcpy(charPtr, currentVal.c_str());
+        token->type = LX_INTEGER;
+        token->value = stoi(charPtr);
+        token->str_ptr = charPtr;
+        return token;
+    }
+    else
+    {
+        Fd->ungetChar();
+        Fd->reportError("Bad number");
+    }
+    return nullptr;
+}
+
+
