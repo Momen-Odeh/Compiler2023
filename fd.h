@@ -26,36 +26,36 @@ public:
     ~FileDescriptor();
 
     // Returns the file name
-    char *GetFileName();
+    char *getFileName();
 
     // Checks if the file is open without errors
-    bool IsOpen();
+    bool isOpen();
 
     // Returns the current line in the file
-    char *GetCurrLine();
+    char *getCurrLine();
 
     // Returns the current line number in the file
-    int GetLineNum();
+    int getLineNum();
 
     // Returns the current character number in the line
-    int GetCharNum();
+    int getCharNum();
 
     // Closes the file descriptor
-    void Close();
+    void close();
 
     // Gets the current character in the file
-    char GetChar();
+    char getChar();
 
     // Reports the error specifying the current line and character
-    void ReportError(char *msg);
+    void reportError(char *msg);
 
     //read line and store it in buffer
-    void ReadLine();
+    void readLine();
 
-    void UngetChar();
+    void ungetChar();
 
     // Opens the file descriptor
-    bool open_file_descriptor(char *filename);
+    bool openFileDescriptor(char *filename);
 };
 
 #endif // FD_H

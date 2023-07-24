@@ -80,17 +80,17 @@ TOKEN* SCANNER::Scan()
     TOKEN *token = new TOKEN;
     char* charPtr;
     string currentVal="";
-    char c = Fd->GetChar();
+    char c = Fd->getChar();
     if(getClass(c) == LX_IDENTIFIER)
     {
         currentVal+=c;
-        c= Fd->GetChar();
+        c= Fd->getChar();
         while(isalpha(c) || c == '_' ||isdigit(c)){
             currentVal+=c;
-            c= Fd->GetChar();
+            c= Fd->getChar();
         }
         if(isDelimiter(c)){
-            Fd->UngetChar();
+            Fd->ungetChar();
             charPtr = new char[currentVal.length() + 1];
             strcpy(charPtr, currentVal.c_str());
             int index = check_keyword(charPtr);
@@ -105,36 +105,36 @@ TOKEN* SCANNER::Scan()
                 return token;
             }
         }else{
-            Fd->ReportError("illegal identifier token");
+            Fd->reportError("illegal identifier token");
         }
     }
     else if(getClass(c) == LX_INTEGER)
     {
         currentVal+=c;
         char prev =c;
-        c= Fd->GetChar();
+        c= Fd->getChar();
         if(prev=='-'&&!isdigit(c)){
-            Fd->UngetChar();
+            Fd->ungetChar();
             token->type=LX_MINUS;
             token->str_ptr = "-";
             return token;
         }
         while(isdigit(c)){
             currentVal+=c;
-            c= Fd->GetChar();
+            c= Fd->getChar();
         }
         if(c=='.'){
             currentVal+=c;
             bool thereIsDigitInNext = false;
-            c= Fd->GetChar();
+            c= Fd->getChar();
             while(isdigit(c)){
                 currentVal+=c;
-                c= Fd->GetChar();
+                c= Fd->getChar();
                 thereIsDigitInNext = true;
             }
-            Fd->UngetChar();
+            Fd->ungetChar();
             if(!thereIsDigitInNext){
-                Fd->ReportError("Bad floating point number");
+                Fd->reportError("Bad floating point number");
             }
             else if(isDelimiter(c)){
                 charPtr = new char[currentVal.length() + 1];
@@ -144,11 +144,11 @@ TOKEN* SCANNER::Scan()
                 return token;
             }
             else{
-                Fd->ReportError("illegal floating point number");
+                Fd->reportError("illegal floating point number");
             }
         }
         else if(isDelimiter(c)){
-            Fd->UngetChar();
+            Fd->ungetChar();
             charPtr = new char[currentVal.length() + 1];
             strcpy(charPtr, currentVal.c_str());
             token->type=LX_INTEGER;
@@ -156,24 +156,24 @@ TOKEN* SCANNER::Scan()
             return token;
         }
         else{
-            Fd->UngetChar();
-            Fd->ReportError("Bad number");
+            Fd->ungetChar();
+            Fd->reportError("Bad number");
         }
     }
     else if(getClass(c) == LX_STRING)
     {
         currentVal+=c;
-        c= Fd->GetChar();
+        c= Fd->getChar();
         while(c != '"') {
             if(c == '\n'||c==EOF)
-                Fd->ReportError("illegal string");
+                Fd->reportError("illegal string");
             currentVal+=c;
-            c= Fd->GetChar();
+            c= Fd->getChar();
         }
         currentVal+=c;
-        c= Fd->GetChar();
+        c= Fd->getChar();
         if(isDelimiter(c)){
-            Fd->UngetChar();
+            Fd->ungetChar();
             charPtr = new char[currentVal.length() + 1];
             strcpy(charPtr, currentVal.c_str());
             token->type=LX_STRING;
@@ -181,18 +181,18 @@ TOKEN* SCANNER::Scan()
             return token;
         }
         else{
-            Fd->ReportError("illegal String");
+            Fd->reportError("illegal String");
         }
     }
     else if(c==':'){
-        c= Fd->GetChar();
+        c= Fd->getChar();
         if(c=='='){
             token->type=LX_COLON_EQ;
             token->str_ptr = ":=";
             return token;
         }
         else{
-            Fd->UngetChar();
+            Fd->ungetChar();
             token->type=LX_COLON;
             token->str_ptr = ":";
             return token;
@@ -269,40 +269,40 @@ TOKEN* SCANNER::Scan()
         return token;
     }
     else if(c=='!'){
-        c=Fd->GetChar();
+        c=Fd->getChar();
         if(c=='='){
             token->type=LX_NEQ;
             token->str_ptr = "!=";
             return token;
         }
         else{
-            Fd->UngetChar();
-            Fd->ReportError("illegal operation");
+            Fd->ungetChar();
+            Fd->reportError("illegal operation");
         }
     }
     else if(c=='<'){
-        c=Fd->GetChar();
+        c=Fd->getChar();
         if(c=='='){
         token->type=LX_LE;
         token->str_ptr = "<=";
         return token;
         }
         else{
-            Fd->UngetChar();
+            Fd->ungetChar();
             token->type=LX_LT;
             token->str_ptr = "<";
             return token;
         }
     }
     else if(c=='>'){
-        c=Fd->GetChar();
+        c=Fd->getChar();
         if(c=='='){
         token->type=LX_GE;
         token->str_ptr = ">=";
         return token;
         }
         else{
-            Fd->UngetChar();
+            Fd->ungetChar();
             token->type=LX_GT;
             token->str_ptr = ">";
             return token;
@@ -314,32 +314,30 @@ TOKEN* SCANNER::Scan()
         return token;
     }
     else if(c=='#'){
-        c=Fd->GetChar();
+        c=Fd->getChar();
         if(c=='#'){
             while(1){
-                c=Fd->GetChar();
-                while (c!='#') {
+                c=Fd->getChar();
+                while (c!='#'&& c!='\n' && c!=EOF) {
                     if(c==EOF){
-                        Fd->ReportError("Comment Not Closed");
+                        Fd->reportError("Comment Not Closed");
                     }
-                    c=Fd->GetChar();
+                    c=Fd->getChar();
                 }
-                c=Fd->GetChar();
+                if(c=='\n'||c==EOF)break;
+                c=Fd->getChar();
                 if(c=='#')break;
-                else if(c==EOF)
-                    Fd->ReportError("Comment Not Closed");
 
             }
         }
         else{
-            while(c!='\n' && c!=EOF){
-                c=Fd->GetChar();
-            }
+            Fd->ungetChar();
+            Fd->reportError("illegal input");
         }
     }
     else if(c=='\n' || c==' ' || c=='\t' || (int)c==12)return nullptr;
     else{
-        Fd->ReportError("illegal input");
+        Fd->reportError("illegal input");
     }
     return nullptr;
 }

@@ -18,7 +18,7 @@ FileDescriptor::FileDescriptor(char *FileName) :
     if (FileName) {
         file = new char[strlen(FileName) + 1];
         strcpy(file, FileName);
-        open_file_descriptor(FileName);
+        openFileDescriptor(FileName);
     } else {
         file = nullptr;
         fp = stdin;
@@ -28,7 +28,7 @@ FileDescriptor::FileDescriptor(char *FileName) :
 
 // Destructor
 FileDescriptor::~FileDescriptor() {
-    Close();
+    close();
     if (file)
         delete[] file;
     if (buffer)
@@ -36,32 +36,32 @@ FileDescriptor::~FileDescriptor() {
 }
 
 // Returns the file name
-char* FileDescriptor::GetFileName() {
+char* FileDescriptor::getFileName() {
     return file;
 }
 
 // Checks if the file is open without errors
-bool FileDescriptor::IsOpen() {
+bool FileDescriptor::isOpen() {
     return fp != nullptr;
 }
 
 // Returns the current line in the file
-char* FileDescriptor::GetCurrLine() {
+char* FileDescriptor::getCurrLine() {
     return buffer;
 }
 
 // Returns the current line number in the file
-int FileDescriptor::GetLineNum() {
+int FileDescriptor::getLineNum() {
     return line_number;
 }
 
 // Returns the current character number in the line
-int FileDescriptor::GetCharNum() {
+int FileDescriptor::getCharNum() {
     return char_number;
 }
 
 // Closes the file descriptor
-void FileDescriptor::Close() {
+void FileDescriptor::close() {
     if (fp != stdin && fp != nullptr) {
         fclose(fp);
         fp = nullptr;
@@ -69,7 +69,7 @@ void FileDescriptor::Close() {
 }
 
 //read line from file and put it in buffer
-void FileDescriptor::ReadLine(){
+void FileDescriptor::readLine(){
     char c;
     line_length=0;
     while ((c = fgetc(fp)) != EOF) {
@@ -94,10 +94,10 @@ void FileDescriptor::ReadLine(){
 }
 
 // Gets the current character in the file
-char FileDescriptor::GetChar() {
+char FileDescriptor::getChar() {
     char c=EOF;
     if((char_number > line_length-1 || line_length==0)&&(buffer[line_length-1]!=EOF)){
-        ReadLine();
+        readLine();
         char_number=0;
     }
     if(char_number<line_length){
@@ -107,7 +107,7 @@ char FileDescriptor::GetChar() {
 }
 
 // Reports the error specifying the current line and character
-void FileDescriptor::ReportError(char *msg) {
+void FileDescriptor::reportError(char *msg) {
     if(buffer[line_length-1] == EOF || buffer[line_length-1] == '\n'){
         buffer[line_length-1]=0;
         char_number--;
@@ -117,27 +117,27 @@ void FileDescriptor::ReportError(char *msg) {
         cout<<' ';
     }
     cout << '^'<<endl;
-    cout << "Error: " << '"' << msg << '"' << " on line " << line_number << " of "<< GetFileName() << endl;
+    cout << "Error: " << '"' << msg << '"' << " on line " << line_number << " of "<< getFileName() << endl;
     exit(1);
 }
 
 
-void FileDescriptor::UngetChar() {
+void FileDescriptor::ungetChar() {
     if (char_number > 0) {
         char_number--;
     }
 }
 
 // Opens the file descriptor
-bool FileDescriptor::open_file_descriptor(char *filename) {
+bool FileDescriptor::openFileDescriptor(char *filename) {
     if (fp != nullptr) {
-        ReportError("File already open");
+        reportError("File already open");
         return false;
     }
 
     fp = fopen(filename, "r");
     if (fp == nullptr) {
-        ReportError("Error opening file");
+        reportError("Error opening file");
         return false;
     }
 
