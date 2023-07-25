@@ -78,11 +78,6 @@ bool SCANNER::isDelimiter(char c)
 }
 
 
-SCANNER::SCANNER()
-{
-}
-
-
 SCANNER::SCANNER (FileDescriptor *fd)
 {
     Fd = fd;
@@ -92,8 +87,6 @@ SCANNER::SCANNER (FileDescriptor *fd)
 TOKEN* SCANNER::Scan()
 {
     TOKEN *token = new TOKEN;
-    char* charPtr;
-    string currentVal="";
     char c = Fd->getChar();
     if(getClass(c) == LX_IDENTIFIER)
     {
@@ -267,12 +260,12 @@ TOKEN* SCANNER::Scan()
     {
         skipComments();
     }
-    else if(c=='\n' || c==' ' || c=='\t' || (int)c==12)return nullptr;
+    else if(c=='\n' || c==' ' || c=='\t' || (int)c==12);
     else
     {
         Fd->reportError("illegal input");
     }
-    return nullptr;
+    return Scan();
 }
 
 
@@ -286,10 +279,6 @@ void SCANNER::skipComments()
             c=Fd->getChar();
             while (c!='#'&& c!='\n' && c!=EOF)
             {
-                if(c==EOF)
-                {
-                    Fd->reportError("Comment Not Closed");
-                }
                 c=Fd->getChar();
             }
             if(c=='\n'||c==EOF)break;
@@ -341,7 +330,7 @@ TOKEN* SCANNER::getId(char firstChar)
     {
         Fd->reportError("illegal identifier token");
     }
-    return nullptr;
+    return Scan();
 }
 
 
@@ -374,7 +363,7 @@ TOKEN* SCANNER::getString(char firstChar)
     {
         Fd->reportError("illegal String");
     }
-    return nullptr;
+    return Scan();
 }
 
 
@@ -398,6 +387,19 @@ TOKEN* SCANNER::getInt(char firstChar)
         currentVal+=c;
         c= Fd->getChar();
     }
+
+    try
+    {
+        charPtr = new char[currentVal.length() + 1];
+        strcpy(charPtr, currentVal.c_str());
+        int v = stoi(charPtr);
+    }
+    catch (const out_of_range& e)
+    {
+        Fd->ungetChar();
+        Fd->reportError("Overflow occurred. The value is out of range");
+    }
+
     if(c=='.')
     {
         currentVal+=c;
@@ -443,7 +445,5 @@ TOKEN* SCANNER::getInt(char firstChar)
         Fd->ungetChar();
         Fd->reportError("Bad number");
     }
-    return nullptr;
+    return Scan();
 }
-
-
