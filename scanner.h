@@ -40,10 +40,10 @@ private:
     FileDescriptor *Fd;
     // define your functions ..
     //I would define the following functions..
-    // void skip_comments();
-    // TOKEN *get_id(..)
-    // TOKEN *get_string(..)
-    // TOKEN *get_int(..) // gets integers and floats
+    void skipComments();
+    TOKEN *getId(char firstChar);
+    TOKEN *getString(char firstChar);
+    TOKEN *getInt(char firstChar); // gets integers and floats
     LEXEME_TYPE getClass(char c);
 
 public:
