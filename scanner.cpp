@@ -69,8 +69,9 @@ int SCANNER::check_keyword(char *str)
 
 bool SCANNER::isDelimiter(char c)
 {
-    if(c==' '||c==':'||c=='='||c=='+'||c=='-'||c=='*'||c=='/'||c=='<'||c=='>'||c==';'
-        ||c=='\n'||c=='#'||(int)c==12||c=='\t'||c==EOF)
+    if(c=='#'||c==':'||c=='='||c=='+'||c=='-'||c=='*'||c=='/'||c=='<'||c=='>'||c==';'
+         ||c=='('||c==')'||c=='{'||c=='}'||c=='['||c==']'||c==','||c=='!'||c=='.'
+         ||c==' '||c=='\n'||(int)c==12||c=='\t'||c==EOF)
     {
         return true;
     }
@@ -411,13 +412,14 @@ TOKEN* SCANNER::getInt(char firstChar)
             c= Fd->getChar();
             thereIsDigitInNext = true;
         }
-        Fd->ungetChar();
         if(!thereIsDigitInNext)
         {
+            Fd->ungetChar();
             Fd->reportError("Bad floating point number");
         }
         else if(isDelimiter(c))
         {
+            Fd->ungetChar();
             charPtr = new char[currentVal.length() + 1];
             strcpy(charPtr, currentVal.c_str());
             token->type = LX_FLOAT;
@@ -442,7 +444,6 @@ TOKEN* SCANNER::getInt(char firstChar)
     }
     else
     {
-        Fd->ungetChar();
         Fd->reportError("Bad number");
     }
     return Scan();

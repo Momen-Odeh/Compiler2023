@@ -114,7 +114,8 @@ void FileDescriptor::reportError(char *msg) {
     }
     cout<< buffer <<endl;
     for(int i=0;i<char_number;i++){
-        cout<<' ';
+        if(buffer[i]=='\t')cout<<'\t';
+        else cout<<' ';
     }
     cout << '^'<<endl;
     cout << "Error: " << '"' << msg << '"' << " on line " << line_number << " of "<< getFileName() << endl;
