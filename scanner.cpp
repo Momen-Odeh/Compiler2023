@@ -71,7 +71,7 @@ bool SCANNER::isDelimiter(char c)
 {
     if(c=='#'||c==':'||c=='='||c=='+'||c=='-'||c=='*'||c=='/'||c=='<'||c=='>'||c==';'
          ||c=='('||c==')'||c=='{'||c=='}'||c=='['||c==']'||c==','||c=='!'||c=='.'
-         ||c==' '||c=='\n'||(int)c==12||c=='\t'||c==EOF)
+         ||c==' '||(int)c==0||c=='\n'||(int)c==12||c=='\t'||c==EOF)
     {
         return true;
     }
@@ -262,6 +262,7 @@ TOKEN* SCANNER::Scan()
         skipComments();
     }
     else if(c=='\n' || c==' ' || c=='\t' || (int)c==12);
+    else if((int)c==0);
     else
     {
         Fd->reportError("illegal input");
@@ -330,6 +331,7 @@ TOKEN* SCANNER::getId(char firstChar)
     else
     {
         Fd->reportError("illegal identifier token");
+        Fd->ungetChar();
     }
     return Scan();
 }
@@ -363,6 +365,7 @@ TOKEN* SCANNER::getString(char firstChar)
     else
     {
         Fd->reportError("illegal String");
+        Fd->ungetChar();
     }
     return Scan();
 }
@@ -430,6 +433,7 @@ TOKEN* SCANNER::getInt(char firstChar)
         else
         {
             Fd->reportError("illegal floating point number");
+            Fd->ungetChar();
         }
     }
     else if(isDelimiter(c))
@@ -445,6 +449,7 @@ TOKEN* SCANNER::getInt(char firstChar)
     else
     {
         Fd->reportError("Bad number");
+        Fd->ungetChar();
     }
     return Scan();
 }
