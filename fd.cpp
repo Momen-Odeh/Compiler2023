@@ -110,16 +110,14 @@ char FileDescriptor::getChar() {
 void FileDescriptor::reportError(char *msg) {
     if(buffer[line_length-1] == EOF || buffer[line_length-1] == '\n'){
         buffer[line_length-1]=0;
-        char_number--;
     }
     cout<< buffer <<endl;
-    for(int i=0;i<char_number;i++){
+    for(int i=0;i<char_number-1;i++){
         if(buffer[i]=='\t')cout<<'\t';
         else cout<<' ';
     }
     cout << '^'<<endl;
     cout << "Error: " << '"' << msg << '"' << " on line " << line_number << " of "<< getFileName() << endl;
-    exit(1);
 }
 
 
