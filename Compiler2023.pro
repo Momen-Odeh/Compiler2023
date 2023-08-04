@@ -12,13 +12,19 @@ SOURCES += \
     fd.cpp \
     fdTest.cpp \
     main.cpp \
+    mainST.cpp \
     mainwindow.cpp \
-    scanner.cpp
+    scanner.cpp \
+    stable.cpp \
+    stlist.cpp
 
 HEADERS += \
     fd.h \
     mainwindow.h \
-    scanner.h
+    scanner.h \
+    stable.h \
+    stentry.h \
+    stlist.h
 
 FORMS += \
     mainwindow.ui
