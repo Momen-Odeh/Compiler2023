@@ -3,7 +3,7 @@
 void STable::init(int size,int flod_case_flag=0)
 {
    Size = size;
-   Table = new STList[size];
+   Table = new STEList[size];
    fold_case = flod_case_flag;
    number_entries = 0;
    number_probes =0 ;

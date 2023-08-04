@@ -1,9 +1,9 @@
-#include "stlist.h"
+#include "STEList.h"
 /**
  * @brief STList::STList
  * default constructor, initialize head and Counter
  */
-STList::STList()
+STEList::STEList()
 {
     Counter = 0;
     Head = NULL;
@@ -13,7 +13,7 @@ STList::STList()
  * @param name : Given name to find
  * @return : If name is found found return NULL otherwise reaturn a pointer to the Node
  */
-STEntry* STList::FindEntry(char *name)
+STEntry* STEList::FindEntry(char *name)
 {
     STEntry *ste = Head;
     while (ste != NULL)
@@ -25,13 +25,13 @@ STEntry* STList::FindEntry(char *name)
 
 }
 /**
- * @brief STList::AddEntry : Call FindEntry, if name is alread in table return false, otherwise add it to the list
+ * @brief STEList::AddEntry : Call FindEntry, if name is alread in table return false, otherwise add it to the list
  *                           Add it as the first Entry, like a stack which is fastest. Update Counter and Head
  * @param name : Name of Entry (variable)
  * @param type : Type of variable
  * @return : True if the node is added and False if the Entry Already exists in the Table
  */
- STEntry* STList::AddEntry(char *name, j_type type)
+ STEntry* STEList::AddEntry(char *name, j_type type)
 {
   STEntry *ste = FindEntry(name);
   if(ste)
@@ -48,10 +48,10 @@ STEntry* STList::FindEntry(char *name)
   return ste;
 }
 /**
- * @brief STList::PrintAll : Prints All nodes in the list, use the print in the STEntry.
+ * @brief STEList::PrintAll : Prints All nodes in the list, use the print in the STEntry.
  * @param fp : File Pointer where to write
  */
-void STList::PrintAll(FILE *fp)
+void STEList::PrintAll(FILE *fp)
 {
     STEntry *ste = Head;
     while (ste != NULL)
@@ -64,17 +64,17 @@ void STList::PrintAll(FILE *fp)
 
 }
 /**
- * @brief STList::Count returns Counter which is Number of Elements
+ * @brief STEList::Count returns Counter which is Number of Elements
  * @return
  */
-int STList::Count()
+int STEList::Count()
 {
     return Counter;
 }
 /**
- * @brief STList::Clear : deletes all Elements in the List and sets the counter to zero
+ * @brief STEList::Clear : deletes all Elements in the List and sets the counter to zero
  */
-void STList::Clear()
+void STEList::Clear()
 {
     STEntry *ste;
     while (Head != NULL)
@@ -86,11 +86,11 @@ void STList::Clear()
     Counter =0;
 }
 
-STList::~STList()
+STEList::~STEList()
 {
     Clear();
 }
 
-STEntry *STList:: getHead(){
+STEntry *STEList:: getHead(){
     return Head;
 }

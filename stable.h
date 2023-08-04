@@ -1,11 +1,11 @@
 #ifndef STABLE_H
 #define STABLE_H
-#include "stlist.h"
+#include "STEList.h"
 #define DEFAULT_SIZE 19
 class STable
 {
 private:
-    STList *Table;   // Dynamic Array of size = Size
+    STEList *Table;   // Dynamic Array of size = Size
     int fold_case;
     unsigned long Size;
     void init(int size,int flod_case_flag);
