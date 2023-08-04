@@ -1,7 +1,7 @@
 #ifndef STLIST_H
 #define STLIST_H
 #include "stable.h"
-
+#include "stentry.h"
 class STList {
 private:
     STable * Head;

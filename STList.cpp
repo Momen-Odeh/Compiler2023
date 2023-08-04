@@ -1,10 +1,10 @@
 #include "STList.h"
 
 STList::STList(FILE * fp,int size ,int flod_case_flag){
-    size = size;
-    flod_case_flag = flod_case_flag;
+    this->size = size;
+    this->flod_case_flag = flod_case_flag;
     Head = new STable(size,flod_case_flag);
-    fp = fp;
+    this->fp = fp;
 }
 STList::~STList(){
     STable *st;
