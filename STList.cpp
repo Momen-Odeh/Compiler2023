@@ -23,8 +23,8 @@ STList::~STList(){
 STEntry* STList::findEntry(char * str){
     return Head -> FindAndPrintEntry(str,fp);
 }
-STEntry* STList::addEntry(char * str,j_type type){
-    return Head -> AddEntry(str, type);
+STEntry* STList::addEntry(STEntry *Entry){
+    return Head -> AddEntry(Entry);
 }
 void STList::enter_scope (){
     STable * tmp = new STable(size,flod_case_flag);

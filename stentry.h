@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 #define TYPE_SIZE 5
+#define ENTRY_SIZE 4
+
 
 typedef enum
 {
@@ -14,6 +16,7 @@ typedef enum
 }j_type;
 
 static char *TYPE_NAMES[TYPE_SIZE] = {"integer","string","boolean","float","none"};// It is not a good idea to put this here
+static char *TYPE_Entry[ENTRY_SIZE] = {"var","const","routine","undefined"};
 
 typedef enum {
     STE_VAR, // A VARIABLE
@@ -29,8 +32,7 @@ public:
 
     char Name[64]; // char *name
     STEntry *Next;
-    j_type Type;  //it is an int
-    ste_entry_type entry_type; /*******************currently not used must add implimentation *****************/
+    ste_entry_type entry_type;
     union{
         //l .for a variable record its type
         struct{
@@ -45,23 +47,22 @@ public:
         // SteListCelll *formals;// will be defined later
             j_type result_type;
         } routine;
-    } f;
+    } STERecourd;
     STEntry() {
         Next = NULL;
-        Type = TYPE_NONE;
+        entry_type = STE_UNDEFINED;
         Name[0] =0; //empty String
-        //f.var.type =  TYPE_INTEGER;
     }
-    STEntry(char *name, j_type type)
+    STEntry(char *name, ste_entry_type entry_type)
     {
         Next= NULL;
-        Type = type;
+        this->entry_type = entry_type;
         strcpy(Name, name);
     }
     char* toString()
     {
-        if ((Type < TYPE_INTEGER) ||Type>TYPE_NONE)  Type = TYPE_NONE;
-        sprintf(str,"(%s,%s)",Name,TYPE_NAMES[Type]);
+        if ((entry_type < STE_VAR) ||entry_type>STE_UNDEFINED)  entry_type = STE_UNDEFINED;
+        sprintf(str,"(%s,%s)",Name,TYPE_Entry[entry_type]);
         return str;
     }
     void print(FILE *fp)
@@ -81,6 +82,19 @@ public:
         }
         return TYPE_NONE;
 
+    }
+
+    static int ste_const_value (STEntry *e ) //Return the value of the constant recorded in entry e.
+    {
+        return e->STERecourd.constant.value;
+    }
+    static char *ste_name (STEntry *e) //Return the name of the object recorded in entry e
+    {
+        return e->Name;
+    }
+    static j_type ste_var_type (STEntry *e) //Return the type of the variable recorded in entry e
+    {
+        return e ->STERecourd.var.type;
     }
 };
 

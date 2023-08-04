@@ -23,7 +23,7 @@ public:
     ~STable();
     STable(unsigned long size);
     void Reset(unsigned long size);// clear_symbol_table
-    STEntry* AddEntry(char *name, j_type type);//Put_symbol
+    STEntry* AddEntry(STEntry *Entry);//Put_symbol
     STEntry* FindAndPrintEntry(char *name, FILE *fp);//Get_symbol
     void PrintAll(FILE *fp);//print_symbol_stats
     void Clear();

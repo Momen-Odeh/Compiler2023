@@ -69,17 +69,17 @@ unsigned long STable::ElfHash( char *str )
  * @param type : type of Entry. See the Main function for example how to find it
  * @return  true if added and false otherwise, the List Table[index] Already returns this for you
  */
-STEntry* STable::AddEntry(char *name, j_type type)
+STEntry* STable::AddEntry(STEntry *Entry)
 {
 
-    unsigned long index = ElfHash(name);
+    unsigned long index = ElfHash(Entry->Name);
 
     if(fold_case)
     {
-        toLowerCase(name);
+        toLowerCase(Entry->Name);
     }
 
-    STEntry* ste = Table[index].AddEntry(name, type);
+    STEntry* ste = Table[index].AddEntry(Entry);
     number_entries++;
     number_probes++;
     return ste;

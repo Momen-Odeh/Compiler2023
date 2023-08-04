@@ -148,7 +148,7 @@ void SymbolTableList()
 {
     FILE *fp;
     j_type type ;
-    STEntry ste;
+    STEntry * ste;
     char str[64];
     fp = fopen("t.txt","r");
     FILE *fout = fopen("out.txt","w");   //set fout = stdout for screen output
@@ -181,15 +181,15 @@ void SymbolTableList()
             else
             {
 //                printf("identfire ------------3\n");
-                strcpy(ste.Name,str);
-                list->addEntry(ste.Name,ste.Type);
-                ste.Type = TYPE_NONE;
+                strcpy(ste->Name,str);
+                list->addEntry(ste);
+                ste->STERecourd.var.type = TYPE_NONE;
             }
         }
         else
         {
 //            printf("type ------------4\n");
-            ste.Type = type;
+            ste->STERecourd.var.type = type;
         }
     }
     fclose(fp);

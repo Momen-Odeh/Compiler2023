@@ -14,7 +14,7 @@ public:
     STList(FILE * fp,int size =19,int flod_case_flag=0);
     ~STList();
     STEntry* findEntry(char * str);
-    STEntry* addEntry(char * str,j_type type);
+    STEntry* addEntry(STEntry *Entry);
     void enter_scope ();
     void exit_scope ();
 

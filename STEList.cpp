@@ -31,16 +31,16 @@ STEntry* STEList::FindEntry(char *name)
  * @param type : Type of variable
  * @return : True if the node is added and False if the Entry Already exists in the Table
  */
- STEntry* STEList::AddEntry(char *name, j_type type)
+ STEntry* STEList::AddEntry(STEntry * Entry)
 {
-  STEntry *ste = FindEntry(name);
+    STEntry *ste = FindEntry(Entry->Name);
   if(ste)
   {
       printf("Entry Already exist, nothing Added\n");
   }
   else
   {
-      ste = new STEntry(name, type) ;
+      ste = Entry ;
       ste->Next = Head;
       Head = ste;
       Counter++;
