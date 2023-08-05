@@ -48,23 +48,38 @@ public:
             j_type result_type;
         } routine;
     } STERecourd;
+
     STEntry() {
         Next = NULL;
         entry_type = STE_UNDEFINED;
         Name[0] =0; //empty String
     }
+
     STEntry(char *name, ste_entry_type entry_type)
     {
         Next= NULL;
         this->entry_type = entry_type;
         strcpy(Name, name);
     }
+
     char* toString()
     {
         if ((entry_type < STE_VAR) ||entry_type>STE_UNDEFINED)  entry_type = STE_UNDEFINED;
-        sprintf(str,"(%s,%s)",Name,TYPE_Entry[entry_type]);
+        if(entry_type==STE_VAR){
+            sprintf(str,"(%s,%s,%s)",Name,TYPE_Entry[entry_type],TYPE_NAMES[STERecourd.var.type]);
+        }
+        else if(entry_type==STE_CONST){
+            sprintf(str,"(%s,%s,%d)",Name,TYPE_Entry[entry_type],STERecourd.constant.value);
+        }
+        else if(entry_type==STE_ROUTINE){
+            sprintf(str,"(%s,%s,%s)",Name,TYPE_Entry[entry_type],TYPE_NAMES[STERecourd.routine.result_type]);
+        }
+        else{
+            sprintf(str,"(%s,%s,%s)",Name,TYPE_Entry[entry_type],TYPE_NAMES[TYPE_NONE]);
+        }
         return str;
     }
+
     void print(FILE *fp)
     {
         fprintf(fp,"%s ", toString());
@@ -81,7 +96,6 @@ public:
             }
         }
         return TYPE_NONE;
-
     }
 
     static int ste_const_value (STEntry *e ) //Return the value of the constant recorded in entry e.
