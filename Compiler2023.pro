@@ -11,6 +11,7 @@ CONFIG += c++17
 SOURCES += \
     STEList.cpp \
     STList.cpp \
+    ast.cpp \
     fd.cpp \
     fdTest.cpp \
     main.cpp \
@@ -21,6 +22,7 @@ SOURCES += \
 HEADERS += \
     STEList.h \
     STList.h \
+    ast.h \
     fd.h \
     scanner.h \
     stable.h \
