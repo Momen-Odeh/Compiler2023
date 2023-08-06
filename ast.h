@@ -169,7 +169,7 @@ typedef struct ast_node
  ast_list *cons_ast (AST *, ast_list *);
  ste_list *cons_ste (STEntry *, STEList *);
  int eval_ast_expr (FileDescriptor *, AST *);
- AST *make_ast_node ();
+ AST *make_ast_node (AST_type type,...);
  void print_ast_node (FILE *, AST *);
 #endif
 
