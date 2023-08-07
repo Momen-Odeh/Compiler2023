@@ -325,8 +325,9 @@ AST* Parser::ParseVarDec(){
     match(token ->type, LX_IDENTIFIER);
     token = scanner->Scan();
     match(token->type,LX_COLON);
-    ParseType()
-    return nullptr;
+    ParseType(STE_VAR);
+
+    return make_ast_node(ast_var_decl);
 }
 AST* Parser::ParseArgListTail(){
     return nullptr;
