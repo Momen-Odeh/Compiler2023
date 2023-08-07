@@ -12,6 +12,7 @@ public:
     Parser(FileDescriptor *fd, FILE *fout);
     ~Parser();
     void match(LEXEME_TYPE t1, LEXEME_TYPE t2);
+    void fatal_error(char *msg);
     AST* ParseProgram();
     AST* ParseDeclList();
     AST* ParseDecl();

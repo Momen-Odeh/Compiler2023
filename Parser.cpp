@@ -1,10 +1,17 @@
 #include "Parser.h"
 #include "scanner.h"
 #include "ast.h"
+#include <iostream>
+using namespace std;
 Parser::Parser(FileDescriptor *fd,FILE *fout){
     scanner= new SCANNER(fd);
     this->fd = fd;
     stList = new STList(fout);
+}
+
+void Parser::fatal_error(char *msg){
+    fd->reportError(msg);
+    exit(1);
 }
 
 void Parser::match(LEXEME_TYPE t1, LEXEME_TYPE t2){

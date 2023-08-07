@@ -429,9 +429,9 @@ static void nl_indent (FILE *f, int d)
 }
 
 
-static void fatal_error(char *msg){
+void fatal_error(char *msg){
     cerr<<msg<<endl;
-    throw;
+    exit(1);
 }
 
 
