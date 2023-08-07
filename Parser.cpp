@@ -69,6 +69,7 @@ AST* Parser::ParseDecl(){
         token=scanner->Scan();
         match(LX_COLON,token->type);
         ste->STERecourd.routine.result_type = ParseType(STE_ROUTINE)->f.a_routine_decl.ste->STERecourd.routine.result_type;
+        token = scanner ->Scan();
         decl = ParseBlock();
         stList->exit_scope();
         stList->addEntry(ste);
@@ -84,6 +85,7 @@ AST* Parser::ParseDecl(){
         strcpy(ste->Name,token->str_ptr);
         stList->enter_scope();
         stelP=ParseFormalList()->f.a_routine_decl.formals;
+        token = scanner ->Scan();
         decl = ParseBlock();
         stList->exit_scope();
         stList->addEntry(ste);
@@ -123,8 +125,13 @@ AST* Parser::ParseFormalList(){
     match(token->type,LX_LPAREN);
     return ParseFormalListTail();
 }
-AST* Parser::ParseBlock(){/*==================================================*/
-    return nullptr;
+AST* Parser::ParseBlock(){
+    match(token->type, KW_BEGIN);
+    AST * varDecList = ParseVarDecList();
+    AST * stmtList  =ParseStmtList();
+    token = scanner->Scan();
+    match(token->type,KW_END);
+    return make_ast_node(ast_block,varDecList->f.a_block.vars,stmtList->f.a_block.stmts);
 }
 AST* Parser::ParseFormalListTail(){
     AST* formals =new AST();
@@ -170,7 +177,13 @@ AST* Parser::ParseStmt(){
     STEntry *steFor = new STEntry(),*steRead= new STEntry(),*steWrite= new STEntry(),*ForId;
     switch (token->type) {
     case LX_IDENTIFIER:
-        return ParseStmtIdTail();
+        if(stList->findEntry(token->str_ptr)){
+            return ParseStmtIdTail();
+        }
+        else
+        {
+            fatal_error("identifire not declare");
+        }
         break;
     case KW_IF:
         pred = ParseExpr();
@@ -253,21 +266,66 @@ AST* Parser::ParseStmt(){
     return nullptr;
 }
 AST* Parser::ParseStmtList(){
-    return nullptr;
+    token = scanner -> Scan();
+    if(token->type == KW_IF || token->type == LX_IDENTIFIER || token->type == KW_WHILE || token->type == KW_FOR||
+        token->type == KW_READ || token->type == KW_WRITE || token->type == KW_RETURN || token->type == KW_BEGIN )
+    {
+        AST * stmt = ParseStmt();
+        token = scanner->Scan();
+        match(token ->type,LX_SEMICOLON);
+        ParseStmtList();
+        return stmt;
+    }
+    return NULL;
 }
 AST* Parser::ParseStmtIdTail(){
-    return nullptr;
+    token = scanner->Scan();
+    if(token->type == LX_COLON_EQ)
+    {
+        return ParseExpr();
+    }
+
+    return ParseArgList();
 }
 AST* Parser::ParseStmtIfTail(){
-    return nullptr;
+    token = scanner->Scan();
+    if(token->type == KW_FI)
+    {
+        return NULL;
+    }
+    else if (token->type == KW_ELSE)
+    {
+        AST* exp = ParseStmt();
+        token = scanner -> Scan();
+        match(token->type, KW_FI);
+        return exp;
+    }
+    else{
+        fatal_error("incorrect statement ParseStmtIfTail");
+    }
 }
 AST* Parser::ParseVarDecList(){
-    return nullptr;
+    token = scanner->Scan();
+    if(token -> type == KW_VAR)
+    {
+        AST * varDec = ParseVarDec();
+        token = scanner->Scan();
+        match(token->type, LX_SEMICOLON);
+        ParseVarDecList();
+        return varDec;
+    }
+    return NULL;
 }
 AST* Parser::ParseArgList(){
     return nullptr;
 }
 AST* Parser::ParseVarDec(){
+    match(token->type, KW_VAR);
+    token = scanner -> Scan();
+    match(token ->type, LX_IDENTIFIER);
+    token = scanner->Scan();
+    match(token->type,LX_COLON);
+    ParseType()
     return nullptr;
 }
 AST* Parser::ParseArgListTail(){
