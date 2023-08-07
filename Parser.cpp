@@ -19,7 +19,7 @@ AST* Parser::ParseProgram(){
     return ParseDeclList();
 }
 AST* Parser::ParseDeclList(){
-    AST * dec = nullptr;
+    AST * dec = NULL;
     token=scanner->Scan();
     if(token->type != LX_EOF){
         dec=ParseDecl();
@@ -27,6 +27,7 @@ AST* Parser::ParseDeclList(){
         match(token->type,LX_SEMICOLON);
         ParseDeclList();
     }
+    make_ast_node(ast_eof);
     return dec;
 }
 AST* Parser::ParseDecl(){
@@ -116,9 +117,9 @@ AST* Parser::ParseType(ste_entry_type steT){
     }
     return ast;
 }
-AST* Parser::ParseExpr(){/*==================================================*/
-
-    return nullptr;
+AST* Parser::ParseExpr(){
+    AST* expr=ParseExprRel();
+    return ParseExprTail(expr);
 }
 AST* Parser::ParseFormalList(){
     token=scanner->Scan();
@@ -127,7 +128,8 @@ AST* Parser::ParseFormalList(){
 }
 AST* Parser::ParseBlock(){
     match(token->type, KW_BEGIN);
-    AST * varDecList = ParseVarDecList();
+    AST * varDecList=new AST();
+    ParseVarDecList(varDecList->f.a_block.vars);
     AST * stmtList  =ParseStmtList();
     token = scanner->Scan();
     match(token->type,KW_END);
@@ -143,6 +145,7 @@ AST* Parser::ParseFormalListTail(){
     match(token->type,LX_RPAREN);
     return formals;
 }
+
 AST* Parser::ParseFormals(){//don’t read token at first time
     AST* formals = new AST();
     ste_list * steList = new ste_list();
@@ -157,6 +160,7 @@ AST* Parser::ParseFormals(){//don’t read token at first time
     formals->f.a_routine_decl.formals=steList;
     return formals;
 }
+
 AST* Parser::ParseFormalsTail(ste_list_cell *tail){
     token = scanner->Scan();
     if(token->type==LX_COMMA){
@@ -178,7 +182,9 @@ AST* Parser::ParseStmt(){
     switch (token->type) {
     case LX_IDENTIFIER:
         if(stList->findEntry(token->str_ptr)){
-            return ParseStmtIdTail();
+            STEntry *st=new STEntry();
+            strcpy(st->Name,token->str_ptr);
+            return ParseStmtIdTail(st);
         }
         else
         {
@@ -278,14 +284,15 @@ AST* Parser::ParseStmtList(){
     }
     return NULL;
 }
-AST* Parser::ParseStmtIdTail(){
+AST* Parser::ParseStmtIdTail(STEntry *st){
     token = scanner->Scan();
     if(token->type == LX_COLON_EQ)
     {
-        return ParseExpr();
+        AST*exp= ParseExpr();
+        return make_ast_node(ast_assign,st,exp);
     }
-
-    return ParseArgList();
+    ast_list_cell *astcell = ParseArgList()->f.a_call.arg_list;
+    return make_ast_node(ast_call,st,astcell);
 }
 AST* Parser::ParseStmtIfTail(){
     token = scanner->Scan();
@@ -304,82 +311,184 @@ AST* Parser::ParseStmtIfTail(){
         fatal_error("incorrect statement ParseStmtIfTail");
     }
 }
-AST* Parser::ParseVarDecList(){
+AST* Parser::ParseVarDecList(ste_list *stel){
     token = scanner->Scan();
     if(token -> type == KW_VAR)
     {
-        AST * varDec = ParseVarDec();
+        ParseVarDec(stel->head);
         token = scanner->Scan();
         match(token->type, LX_SEMICOLON);
-        ParseVarDecList();
-        return varDec;
+        ParseVarDecList(stel->tail);
     }
     return NULL;
 }
 AST* Parser::ParseArgList(){
-    return nullptr;
+    match(token->type,LX_LPAREN);
+    ast_list_cell *astList=new ast_list_cell();
+    ParseArgListTail(astList);
+    AST* argList=new AST();
+    argList->f.a_call.arg_list = astList;
+    return argList;
 }
-AST* Parser::ParseVarDec(){
+AST* Parser::ParseVarDec(STEntry *ste){
     match(token->type, KW_VAR);
+    ste->entry_type=STE_VAR;
     token = scanner -> Scan();
     match(token ->type, LX_IDENTIFIER);
+    strcpy(ste->Name,token->str_ptr);
     token = scanner->Scan();
     match(token->type,LX_COLON);
-    ParseType(STE_VAR);
-
-    return make_ast_node(ast_var_decl);
+    ste->STERecourd.var.type=ParseType(STE_VAR)->f.a_var.var->STERecourd.var.type;
+    return make_ast_node(ast_var_decl,ste);
 }
-AST* Parser::ParseArgListTail(){
+AST* Parser::ParseArgListTail(ast_list_cell *ast){
+    AST* args =NULL;
+    token=scanner->Scan();
+    if(token->type!=LX_RPAREN){
+        args=ParseArgs(ast);
+        token=scanner->Scan();
+    }
+    match(token->type,LX_RPAREN);
+    return args;
+}
+AST* Parser::ParseArgs(ast_list_cell *ast){
+    ast->head=ParseExpr();
+    ParseArgsTail(ast);
     return nullptr;
 }
-AST* Parser::ParseArgs(){
-    return nullptr;
-}
-AST* Parser::ParseArgsTail(){
+AST* Parser::ParseArgsTail(ast_list_cell *ast){
+    token = scanner->Scan();
+    if(token->type==LX_COMMA){
+        ParseArgs(ast->tail);
+    }
     return nullptr;
 }
 AST* Parser::ParseExprRel(){
-    return nullptr;
+    AST* EPm =ParseExprPm();
+    return ParseExprRelTail(EPm);
 }
-AST* Parser::ParseExprTail(){
-    return nullptr;
+AST* Parser::ParseExprRelTail(AST* expRel){
+    token=scanner->Scan();
+    if(token->type==LX_EQ || token->type==LX_NEQ ||token->type==LX_LT || token->type==LX_LE ||
+        token->type==LX_GT || token->type==LX_GE){
+        AST_type relOp;
+        if(token->type==LX_EQ)relOp=ast_eq;
+        else if(token->type==LX_NEQ)relOp=ast_neq;
+        else if(token->type==LX_LT)relOp=ast_lt;
+        else if(token->type==LX_LE)relOp=ast_le;
+        else if(token->type==LX_GT)relOp=ast_gt;
+        else relOp=ast_ge;
+        AST*expPm = ParseExprPm();
+        expRel = make_ast_node(relOp,expRel,expPm);
+        ParseExprRelTail(expRel);
+    }
+    return expRel;
 }
-AST* Parser::ParseRelConj(){
-    return nullptr;
+AST* Parser::ParseExprTail(AST* expr){
+    AST* expRel=NULL;
+    token=scanner->Scan();
+    if(token->type==KW_AND || token->type==KW_OR){
+//        ParseRelConj();
+        AST_type conj;
+        if(token->type==KW_AND)conj=ast_and;
+        else conj=ast_or;
+        expRel = ParseExprRel();
+        expr = make_ast_node(conj,expr,expRel);
+        ParseExprTail(expr);
+    }
+    return expr;
 }
+
 AST* Parser::ParseExprPm(){
-    return nullptr;
+    AST *expPm=ParseExprMd();
+    return ParseExprPmTail(expPm);
 }
-AST* Parser::ParseRelTail(){
-    return nullptr;
+
+AST* Parser::ParseExprPmTail(AST* expPm){
+    token = scanner->Scan();
+    if(token->type==LX_PLUS||token->type==LX_MINUS){
+        AST_type opPm;
+        if(token->type==LX_PLUS)opPm=ast_plus;
+        else opPm=ast_minus;
+        AST* expMd=ParseExprMd();
+        expPm = make_ast_node(opPm,expPm,expMd);
+        ParseExprPmTail(expPm);
+    }
+    return expPm;
 }
+
 AST* Parser::ParseExprOp(){
     return nullptr;
 }
 AST* Parser::ParseExprMd(){
-    return nullptr;
+    AST* expMd=ParseExprUo();
+    return ParseExprMdTail(expMd);
 }
-AST* Parser::ParseExprMdTail(){
-    return nullptr;
+AST* Parser::ParseExprMdTail(AST* expMd){
+    token = scanner->Scan();
+    if(token->type==LX_SLASH||token->type==LX_STAR){
+        AST_type opMd;
+        if(token->type==LX_SLASH)opMd=ast_divide;
+        else opMd=ast_times;
+        AST* expUo=ParseExprUo();
+        expMd = make_ast_node(opMd,expMd,expUo);
+        ParseExprMdTail(expMd);
+    }
+    return expMd;
 }
-AST* Parser::ParsePmTail(){
-    return nullptr;
-}
-AST* Parser::ParseArithOpPm(){
-    return nullptr;
-}
+
+
 AST* Parser::ParseExprUo(){
-    return nullptr;
+    token = scanner->Scan();
+    if(token->type==LX_MINUS||token->type==KW_NOT){
+        AST_type unaryType=ast_uminus;
+        if(token->type==KW_NOT)unaryType=ast_not;
+        AST* expun = ParseExprUo();
+        return make_ast_node(unaryType,expun);
+    }
+    return ParseExprFinal();
 }
-AST* Parser::ParseArithOpMd(){
-    return nullptr;
-}
-AST* Parser::ParseUnaryOp(){
-    return nullptr;
-}
+
+
 AST* Parser::ParseExprFinal(){
+    AST* expr;
+    STEntry *stes=new STEntry();
+    switch (token->type) {
+    case LX_IDENTIFIER:
+        if(stList->findEntry(token->str_ptr)){
+            strcpy(stes->Name,token->str_ptr);
+            return ParseExprFinalIdTail(stes);
+        }
+        fatal_error("function not defined");
+        break;
+    case LX_INTEGER:
+        return make_ast_node(ast_integer,token->value);
+        break;
+    case LX_STRING:
+        return make_ast_node(ast_string,token->str_ptr);
+        break;
+    case KW_TRUE:
+        return make_ast_node(ast_boolean,true);
+        break;
+    case KW_FALSE:
+        return make_ast_node(ast_boolean,false);
+        break;
+    case LX_LPAREN:
+        expr=ParseExpr();
+        token=scanner->Scan();
+        match(token->type,LX_RPAREN);
+        return expr;
+        break;
+    default:
+        break;
+    }
     return nullptr;
 }
-AST* Parser::ParseExprFinalIdTail(){
+AST* Parser::ParseExprFinalIdTail(STEntry *stes){
+    token = scanner->Scan();
+    if(token->type==LX_LPAREN){
+        ast_list_cell *astList = ParseArgList()->f.a_call.arg_list;
+        return make_ast_node(ast_call,stes,astList);
+    }
     return nullptr;
 }

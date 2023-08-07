@@ -149,7 +149,7 @@ typedef struct ast_node
 
 	struct{ 
            ast_node *arg; /* Argument */
-           j_type type;
+           AST_type type;
     } a_unary_op;// not and -ve
 
 	struct{

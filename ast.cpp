@@ -41,7 +41,7 @@ AST * make_ast_node (AST_type type,...)
 			n->f.a_routine_decl.body = va_arg (ap, AST *);
 			break;
 
-		case ast_assign:		
+        case ast_assign://need to use it
             n->f.a_assign.lhs = va_arg (ap, STEntry *);
 			n->f.a_assign.rhs = va_arg (ap, AST *);
 			break;
@@ -86,22 +86,22 @@ AST * make_ast_node (AST_type type,...)
 			n->f.a_return.expr = va_arg (ap, AST *);
 			break;
 
-		case ast_var:
+        case ast_var://need to use it
             n->f.a_var.var = va_arg (ap, STEntry *);
 			break;
 
-		case ast_integer:
+        case ast_integer:
 			n->f.a_integer.value = va_arg (ap, int);
 			break;
 
-		case ast_float:
+        case ast_float:
 			n->f.a_float.value = va_arg (ap, float);
 			break;
-		case ast_string:
+        case ast_string:
 			n->f.a_string.string = va_arg (ap, char *);
 			break;
 		case ast_boolean:
-			n->f.a_boolean.value = va_arg (ap, int);
+            n->f.a_boolean.value = va_arg (ap, bool);
 			break;
 
 		case ast_times:
@@ -121,13 +121,13 @@ AST * make_ast_node (AST_type type,...)
             n->f.a_binary_op.type = va_arg(ap, AST_type);
 			break;
 
-		case ast_not:
-		case ast_uminus:
+        case ast_not://need to use it
+        case ast_uminus://need to use it
 			n->f.a_unary_op.arg = va_arg (ap, AST *);
-            n->f.a_unary_op.type = va_arg(ap, j_type);
+            n->f.a_unary_op.type = va_arg(ap, AST_type);
 			break;
     // new page page 4
-		case ast_eof:
+        case ast_eof://need to use it
 			break;
 		default:
             fatal_error ("Unknown type of AST node in make_ast_node'n");
