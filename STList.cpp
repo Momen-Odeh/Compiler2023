@@ -21,7 +21,14 @@ STList::~STList(){
     fclose(fp);
 }
 STEntry* STList::findEntry(char * str){
-    return Head -> FindAndPrintEntry(str,fp);
+    STable *temp = Head;
+    STEntry *result = NULL;
+    while(temp!=NULL){
+        result = temp -> FindAndPrintEntry(str,fp);
+        if(result != NULL)break;
+        temp = temp->next;
+    }
+    return result;
 }
 STEntry* STList::addEntry(STEntry *Entry){
     return Head -> AddEntry(Entry);

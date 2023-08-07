@@ -1,9 +1,10 @@
 #include "Parser.h"
 #include "scanner.h"
 #include "ast.h"
-Parser::Parser(FileDescriptor *fd){
+Parser::Parser(FileDescriptor *fd,FILE *fout){
     scanner= new SCANNER(fd);
     this->fd = fd;
+    stList = new STList(fout);
 }
 
 void Parser::match(LEXEME_TYPE t1, LEXEME_TYPE t2){
@@ -29,41 +30,64 @@ AST* Parser::ParseDeclList(){
     return dec;
 }
 AST* Parser::ParseDecl(){
-    AST* decl;
+    AST* decl = new AST();
+    STEntry *ste;
     switch (token->type) {
     case KW_VAR:
-        decl->f.a_var.var->entry_type=STE_VAR;
+        ste=new STEntry();
+        ste->entry_type=STE_VAR;
         token=scanner->Scan();
         match(LX_IDENTIFIER,token->type);
+        strcpy(ste->Name,token->str_ptr);
         token=scanner->Scan();
         match(LX_COLON,token->type);
-        ParseType(decl);
-        return make_ast_node(ast_var_decl,decl->f.a_var_decl.ste);
+        ste->STERecourd.constant.value = ParseType(STE_VAR)->f.a_var_decl.ste->STERecourd.constant.value;
+        stList->addEntry(ste);
+        return make_ast_node(ast_var_decl,ste);
         break;
     case KW_CONSTANT:
-        decl->f.a_const_decl.ste->entry_type=STE_CONST;
+        ste=new STEntry();
+        ste->entry_type=STE_CONST;
         token=scanner->Scan();
         match(LX_IDENTIFIER,token->type);
+        strcpy(ste->Name,token->str_ptr);
         token=scanner->Scan();
         match(LX_EQ,token->type);
-        ParseExpr(decl);
-        return make_ast_node(ast_const_decl,decl->f.a_const_decl.ste);
+        ste->STERecourd.constant.value = ParseExpr()->f.a_const_decl.ste->STERecourd.constant.value;
+        stList->addEntry(ste);
+        return make_ast_node(ast_const_decl,ste);
         break;
     case KW_FUNCTION:
-        decl->f.a_const_decl.ste->entry_type=STE_ROUTINE;
+        ste=new STEntry();
+        ste_list *stel;
+        ste->entry_type=STE_ROUTINE;
         token=scanner->Scan();
         match(LX_IDENTIFIER,token->type);
-        ParseFormalList();
+        strcpy(ste->Name,token->str_ptr);
+        stList->enter_scope();
+        stel=ParseFormalList()->f.a_routine_decl.formals;
         token=scanner->Scan();
         match(LX_COLON,token->type);
-        ParseType(decl);
-        ParseBlock();
+        ste->STERecourd.routine.result_type = ParseType(STE_ROUTINE)->f.a_routine_decl.ste->STERecourd.routine.result_type;
+        decl = ParseBlock();
+        stList->exit_scope();
+        stList->addEntry(ste);
+        return make_ast_node(ast_routine_decl,ste, stel, decl);
         break;
     case KW_PROCEDURE:
+        ste=new STEntry();
+        ste_list *stelP;
+        ste->entry_type=STE_ROUTINE;
+        ste->STERecourd.routine.result_type = TYPE_NONE;
         token=scanner->Scan();
         match(LX_IDENTIFIER,token->type);
-        ParseFormalList();
-        ParseBlock();
+        strcpy(ste->Name,token->str_ptr);
+        stList->enter_scope();
+        stelP=ParseFormalList()->f.a_routine_decl.formals;
+        decl = ParseBlock();
+        stList->exit_scope();
+        stList->addEntry(ste);
+        return make_ast_node(ast_routine_decl,ste, stelP, decl);
         break;
     default:
         fd->reportError("mismatch parse declearation");
@@ -71,28 +95,161 @@ AST* Parser::ParseDecl(){
     }
     return nullptr;
 }
-AST* Parser::ParseType(AST* decl){
-    return nullptr;
+AST* Parser::ParseType(ste_entry_type steT){
+    token=scanner->Scan();
+    j_type type;
+    AST* ast = new AST();
+    if(token->type == KW_INTEGER){
+        type = TYPE_INTEGER;
+    }else if(token->type == KW_STRING){
+        type = TYPE_STRING;
+    }else{
+        match(token->type,KW_BOOLEAN);
+        type = TYPE_BOOLEAN;
+    }
+    if(steT==STE_ROUTINE){
+        ast->f.a_routine_decl.ste->STERecourd.routine.result_type = type;
+    }else if(steT==STE_VAR){
+        ast->f.a_var_decl.ste->STERecourd.var.type=type;
+    }
+    return ast;
 }
-AST* Parser::ParseExpr(AST* decl){
+AST* Parser::ParseExpr(){/*==================================================*/
+
     return nullptr;
 }
 AST* Parser::ParseFormalList(){
-    return nullptr;
+    token=scanner->Scan();
+    match(token->type,LX_LPAREN);
+    return ParseFormalListTail();
 }
-AST* Parser::ParseBlock(){
+AST* Parser::ParseBlock(){/*==================================================*/
     return nullptr;
 }
 AST* Parser::ParseFormalListTail(){
-    return nullptr;
+    AST* formals =new AST();
+    token=scanner->Scan();
+    if(token->type!=LX_RPAREN){
+        formals=ParseFormals();
+        token=scanner->Scan();
+    }
+    match(token->type,LX_RPAREN);
+    return formals;
 }
-AST* Parser::ParseFormals(){
-    return nullptr;
+AST* Parser::ParseFormals(){//don’t read token at first time
+    AST* formals = new AST();
+    ste_list * steList = new ste_list();
+    match(LX_IDENTIFIER,token->type);
+    strcpy(steList->head->Name,token->str_ptr);
+    steList->head->entry_type=STE_VAR;
+    token = scanner->Scan();
+    match(token->type,LX_COLON);
+    steList->head->STERecourd.constant.value = ParseType(STE_VAR)->f.a_var_decl.ste->STERecourd.constant.value;
+    stList->addEntry(steList->head);
+    ParseFormalsTail(steList->tail);
+    formals->f.a_routine_decl.formals=steList;
+    return formals;
 }
-AST* Parser::ParseFormalsTail(){
+AST* Parser::ParseFormalsTail(ste_list_cell *tail){
+    token = scanner->Scan();
+    if(token->type==LX_COMMA){
+        tail->head->entry_type=STE_VAR;
+        token = scanner->Scan();
+        match(LX_IDENTIFIER,token->type);
+        strcpy(tail->head->Name,token->str_ptr);
+        token = scanner->Scan();
+        match(LX_COLON,token->type);
+        tail->head->STERecourd.constant.value = ParseType(STE_VAR)->f.a_var_decl.ste->STERecourd.constant.value;
+        stList->addEntry(tail->head);
+        ParseFormalsTail(tail->tail);
+    }
     return nullptr;
 }
 AST* Parser::ParseStmt(){
+    AST *pred,*conseq,*alter,*Wlhs,*Wrhs,*lower_bound,*upper_bound,*body,*ASTreturn;
+    STEntry *steFor = new STEntry(),*steRead= new STEntry(),*steWrite= new STEntry(),*ForId;
+    switch (token->type) {
+    case LX_IDENTIFIER:
+        return ParseStmtIdTail();
+        break;
+    case KW_IF:
+        pred = ParseExpr();
+        token = scanner->Scan();
+        match(KW_THEN,token->type);
+        conseq = ParseStmt();
+        alter = ParseStmtIfTail();
+        return make_ast_node(ast_if,pred,conseq,alter);
+        break;
+    case KW_WHILE:
+        Wlhs=ParseExpr();
+        token = scanner->Scan();
+        match(KW_DO,token->type);
+        Wrhs = ParseStmt();
+        token = scanner->Scan();
+        match(KW_OD,token->type);
+        return make_ast_node(ast_while,Wlhs,Wrhs);
+        break;
+    case KW_FOR:
+        token = scanner->Scan();
+        match(LX_IDENTIFIER,token->type);
+        strcpy(steFor->Name,token->str_ptr);
+        ForId = stList->findEntry(token->str_ptr);
+        if(ForId == NULL){
+            fatal_error("variable in for not defined");
+        }
+        token = scanner->Scan();
+        match(LX_COLON_EQ,token->type);
+        lower_bound=ParseExpr();
+        token = scanner->Scan();
+        match(KW_TO,token->type);
+        upper_bound = ParseExpr();
+        token = scanner->Scan();
+        match(KW_DO,token->type);
+        body=ParseStmt();
+        token = scanner->Scan();
+        match(KW_OD,token->type);
+        return make_ast_node(ast_for,steFor,lower_bound,upper_bound,body);
+        break;
+    case KW_READ:
+        token = scanner->Scan();
+        match(LX_LPAREN,token->type);
+        token = scanner->Scan();
+        match(LX_IDENTIFIER,token->type);
+        strcpy(steRead->Name,token->str_ptr);
+        ForId = stList->findEntry(token->str_ptr);
+        if(ForId == NULL){
+            fatal_error("variable in for not defined");
+        }
+        token = scanner->Scan();
+        match(LX_RPAREN,token->type);
+        return make_ast_node(ast_read,steRead);
+        break;
+    case KW_WRITE:
+        token = scanner->Scan();
+        match(LX_LPAREN,token->type);
+        token = scanner->Scan();
+        match(LX_IDENTIFIER,token->type);
+        strcpy(steWrite->Name,token->str_ptr);
+        ForId = stList->findEntry(token->str_ptr);
+        if(ForId == NULL){
+            fatal_error("variable in for not defined");
+        }
+        token = scanner->Scan();
+        match(LX_RPAREN,token->type);
+        return make_ast_node(ast_write,steWrite);
+        break;
+    case KW_RETURN:
+        token = scanner->Scan();
+        match(LX_LPAREN,token->type);
+        ASTreturn=ParseExpr();
+        token = scanner->Scan();
+        match(LX_RPAREN,token->type);
+        return make_ast_node(ast_return,ASTreturn);
+        break;
+    default:
+        return ParseBlock();
+        break;
+    }
     return nullptr;
 }
 AST* Parser::ParseStmtList(){

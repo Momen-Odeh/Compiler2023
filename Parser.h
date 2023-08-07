@@ -2,25 +2,26 @@
 #define PARSER_H
 #include "scanner.h"
 #include "ast.h"
-
+#include "STList.h"
 class Parser{
 public:
     SCANNER * scanner;
     TOKEN *token;
+    STList *stList;
     FileDescriptor *fd;
-    Parser(FileDescriptor *fd);
+    Parser(FileDescriptor *fd, FILE *fout);
     ~Parser();
     void match(LEXEME_TYPE t1, LEXEME_TYPE t2);
     AST* ParseProgram();
     AST* ParseDeclList();
     AST* ParseDecl();
-    AST* ParseType(AST* decl);
-    AST* ParseExpr(AST* decl);
+    AST* ParseType(ste_entry_type steT);
+    AST* ParseExpr();
     AST* ParseFormalList();
     AST* ParseBlock();
     AST* ParseFormalListTail();
     AST* ParseFormals();
-    AST* ParseFormalsTail();
+    AST* ParseFormalsTail(ste_list_cell *tail);
     AST* ParseStmt();
     AST* ParseStmtList();
     AST* ParseStmtIdTail();
