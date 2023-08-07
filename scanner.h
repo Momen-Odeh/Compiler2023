@@ -23,9 +23,9 @@ enum LEXEME_TYPE
     /* Not match*/
     LX_NOTMATCH
 };
-const char* LEX_VALUES[] = {
+static const char* LEX_VALUES[] = {
     "LX_IDENTIFIER", "LX_INTEGER", "LX_STRING","LX_FLOAT",
-     /* Keywords */
+    /* Keywords */
     "KW_PROGRAM",
     "KW_VAR", "KW_CONSTANT", "KW_INTEGER", "KW_BOOLEAN", "KW_STRING", "KW_FLOAT",
     "KW_TRUE", "KW_FALSE", "KW_IF", "KW_FI", "KW_THEN", "KW_ELSE",

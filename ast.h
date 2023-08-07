@@ -8,7 +8,7 @@
 /* List of AST nodes */
 
 struct ast_node;
-static void fatal_error(char *msg);
+void fatal_error(char *msg);
 ////////////////////////////////////////////////////////////
 /* Type of an AST node. */
 typedef enum

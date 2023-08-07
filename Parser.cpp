@@ -3,6 +3,7 @@
 #include "ast.h"
 #include <iostream>
 using namespace std;
+
 Parser::Parser(FileDescriptor *fd,FILE *fout){
     scanner= new SCANNER(fd);
     this->fd = fd;
