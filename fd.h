@@ -20,7 +20,7 @@ private:
 public:
 
     // Constructor to open a file
-    FileDescriptor(char *FileName = nullptr);
+    FileDescriptor(char *FileName);
 
     // Destructor
     ~FileDescriptor();

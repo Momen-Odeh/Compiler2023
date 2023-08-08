@@ -13,10 +13,10 @@ public:
     ~Parser();
     void match(LEXEME_TYPE t1, LEXEME_TYPE t2);
     void fatal_error(char *msg);
-    AST* ParseProgram();
-    AST* ParseDeclList();
+    ast_list_cell* ParseProgram();
+    AST* ParseDeclList(ast_list_cell *astList);
     AST* ParseDecl();
-    AST* ParseType(ste_entry_type steT);
+    j_type ParseType();
     AST* ParseExpr();
     AST* ParseFormalList();
     AST* ParseBlock();
@@ -24,11 +24,11 @@ public:
     AST* ParseFormals();
     AST* ParseFormalsTail(ste_list_cell *tail);
     AST* ParseStmt();
-    AST* ParseStmtList();
+    AST* ParseStmtList(ast_list_cell *astList);
     AST* ParseStmtIdTail(STEntry *st);
     AST* ParseStmtIfTail();
     AST* ParseVarDecList(ste_list *stel);
-    AST* ParseArgList();
+    ast_list_cell* ParseArgList();
     AST* ParseVarDec(STEntry *ste);
     AST* ParseArgListTail(ast_list_cell* ast);
     AST* ParseArgs(ast_list_cell *ast);
@@ -38,7 +38,6 @@ public:
     AST* ParseExprTail(AST* expr);
     AST* ParseExprPm();
     AST* ParseExprPmTail(AST* expMd);
-    AST* ParseExprOp();
     AST* ParseExprMd();
     AST* ParseExprMdTail(AST* expMd);
     AST* ParseExprUo();
