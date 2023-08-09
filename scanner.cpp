@@ -33,8 +33,12 @@ LEXEME_TYPE key_type[] = {
 
 
 void SCANNER::ungetToken(){
+    cout<<"********************************before :"<<Fd->getCharNum()<<endl;
     int tokenLength=Fd->getCharNum()-scanCharNumber;
-    Fd->setCharNum(Fd->getCharNum()-tokenLength);
+    if(Fd->getCharNum()< scanCharNumber){
+        Fd->setCharNum(0);
+    }
+    else Fd->setCharNum(Fd->getCharNum()-tokenLength);
 }
 
 LEXEME_TYPE SCANNER::getClass(char c)

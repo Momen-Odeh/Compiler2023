@@ -110,6 +110,11 @@ char FileDescriptor::getChar() {
     return c;
 }
 
+
+void FileDescriptor::unReadChar(int charNumber){
+    fseek(fp, -charNumber, SEEK_CUR);
+}
+
 // Reports the error specifying the current line and character
 void FileDescriptor::reportError(char *msg) {
     if(buffer[line_length-1] == EOF || buffer[line_length-1] == '\n'){
