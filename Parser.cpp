@@ -8,6 +8,7 @@ Parser::Parser(FileDescriptor *fd,FILE *fout){
     scanner= new SCANNER(fd);
     this->fd = fd;
     stList = new STList(fout);
+    file=fopen("parserOutput88.txt","w");
 }
 
 void Parser::fatal_error(char *msg){
@@ -378,8 +379,8 @@ AST* Parser::ParseArgsTail(ast_list_cell *astList){
     }
     else{
         scanner->ungetToken();
+        return args;
     }
-    return args;
 }
 
 AST* Parser::ParseExpr(){
@@ -398,8 +399,10 @@ AST* Parser::ParseExprTail(AST* expr){
         expr = make_ast_node(conj,expr,expRel);
         ParseExprTail(expr);
     }
-    else scanner->ungetToken();
-    return expr;
+    else{
+        scanner->ungetToken();
+        return expr;
+    }
 }
 
 AST* Parser::ParseExprRel(){
@@ -423,14 +426,18 @@ AST* Parser::ParseExprRelTail(AST* expRel){
         expRel = make_ast_node(relOp,expRel,expPm);
         ParseExprRelTail(expRel);
     }
-    else scanner->ungetToken();
-    return expRel;
+    else{
+        scanner->ungetToken();
+        return expRel;
+    }
 }
 
 
 AST* Parser::ParseExprPm(){
     AST* expPm=ParseExprMd();
-    return ParseExprPmTail(expPm);
+    expPm=ParseExprPmTail(expPm);
+    print_ast_node(file,expPm);
+    return expPm;
 }
 
 AST* Parser::ParseExprPmTail(AST* expPm){
@@ -444,8 +451,10 @@ AST* Parser::ParseExprPmTail(AST* expPm){
         expPm = make_ast_node(opPm,expPm,expMd);
         ParseExprPmTail(expPm);
     }
-    else scanner->ungetToken();
-    return expPm;
+    else{
+        scanner->ungetToken();
+        return expPm;
+    }
 }
 
 AST* Parser::ParseExprMd(){
@@ -464,8 +473,10 @@ AST* Parser::ParseExprMdTail(AST* expMd){
         expMd = make_ast_node(opMd,expMd,expUo);
         ParseExprMdTail(expMd);
     }
-    else scanner->ungetToken();
-    return expMd;
+    else{
+        scanner->ungetToken();
+        return expMd;
+    }
 }
 
 
@@ -478,8 +489,10 @@ AST* Parser::ParseExprUo(){
         AST* expun = ParseExprUo();
         return make_ast_node(unaryType,expun);
     }
-    else scanner->ungetToken();
-    return ParseExprFinal();
+    else {
+        scanner->ungetToken();
+        return ParseExprFinal();
+    }
 }
 
 

@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
 {
     FileDescriptor * fd = new FileDescriptor("example.txt");
     FILE *fp;
-    fp = fopen("parserOut4.txt","w");
+    fp = fopen("parserOutput.txt","w");
     Parser *p = new Parser(fd,fp);
     ast_list *astList = p->ParseProgram();
     while(astList){

@@ -95,13 +95,13 @@ AST * make_ast_node (AST_type type,...)
 			break;
 
         case ast_float:
-			n->f.a_float.value = va_arg (ap, float);
+            n->f.a_float.value = va_arg (ap, double);
 			break;
         case ast_string:
 			n->f.a_string.string = va_arg (ap, char *);
 			break;
 		case ast_boolean:
-            n->f.a_boolean.value = va_arg (ap, bool);
+            n->f.a_boolean.value = va_arg (ap, int);
 			break;
 
 		case ast_times:

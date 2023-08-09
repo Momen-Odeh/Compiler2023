@@ -5,6 +5,7 @@
 #include "STList.h"
 class Parser{
 public:
+    FILE *file;
     SCANNER * scanner;
     TOKEN *token;
     STList *stList;
