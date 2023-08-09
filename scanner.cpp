@@ -32,6 +32,11 @@ LEXEME_TYPE key_type[] = {
 };
 
 
+void SCANNER::ungetToken(){
+    int tokenLength=Fd->getCharNum()-scanCharNumber;
+    Fd->setCharNum(Fd->getCharNum()-tokenLength);
+}
+
 LEXEME_TYPE SCANNER::getClass(char c)
 {
     if(isalpha(c) || c == '_')
@@ -87,6 +92,7 @@ SCANNER::SCANNER (FileDescriptor *fd)
 
 TOKEN* SCANNER::Scan()
 {
+    scanCharNumber = Fd->getCharNum();
     TOKEN *token = new TOKEN;
     char c = Fd->getChar();
     if(getClass(c) == LX_IDENTIFIER)

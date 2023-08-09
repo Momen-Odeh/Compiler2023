@@ -60,6 +60,10 @@ int FileDescriptor::getCharNum() {
     return char_number;
 }
 
+void FileDescriptor::setCharNum(int charNum){//add it to unget token
+    this->char_number=charNum;
+}
+
 // Closes the file descriptor
 void FileDescriptor::close() {
     if (fp != stdin && fp != nullptr) {

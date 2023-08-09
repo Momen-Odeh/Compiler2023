@@ -67,8 +67,10 @@ private:
     LEXEME_TYPE getClass(char c);
 
 public:
+    int scanCharNumber;
     SCANNER();
     SCANNER (FileDescriptor *fd);
+    void ungetToken();
     TOKEN* Scan();
     bool isDelimiter(char c);
     int check_keyword(char *str);

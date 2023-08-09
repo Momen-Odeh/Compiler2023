@@ -40,6 +40,8 @@ public:
     // Returns the current character number in the line
     int getCharNum();
 
+    void setCharNum(int charNum);
+
     // Closes the file descriptor
     void close();
 

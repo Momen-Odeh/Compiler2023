@@ -115,16 +115,15 @@ AST * make_ast_node (AST_type type,...)
 		case ast_gt:
 		case ast_ge:
 		case ast_and:
-		case ast_or:
+        case ast_or:
 			n->f.a_binary_op.larg = va_arg (ap, AST *);
-			n->f.a_binary_op.rarg = va_arg (ap, AST *);
-            n->f.a_binary_op.type = va_arg(ap, AST_type);
+            n->f.a_binary_op.rarg = va_arg (ap, AST *);
+            n->f.a_binary_op.type = type;
 			break;
-
         case ast_not://need to use it
         case ast_uminus://need to use it
 			n->f.a_unary_op.arg = va_arg (ap, AST *);
-            n->f.a_unary_op.type = va_arg(ap, AST_type);
+            n->f.a_unary_op.type = type;
 			break;
     // new page page 4
         case ast_eof://need to use it
