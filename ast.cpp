@@ -11,10 +11,7 @@ arguments are the fields of that type of node, in order. */
 #include <iostream>
 using namespace std;
 /* Internal routines: */
-static void nl_indent (FILE *, int);//make new line
-static void p_a_n (FILE *, AST *, int);
-static void print_ast_list (FILE *, ast_list *, char *, int);
-static void print_ste_list (FILE *, ste_list *, char *, char *, int);
+
 
 ///////////////////////////////////////////////////////////////////////
 // page 2
@@ -208,7 +205,7 @@ void print_ast_node (FILE *f, AST *n)
 	  p_a_n (f, n, 0);
 }
 ///////////////////////////////////////////////////////////////////////
-static void p_a_n (FILE *f, AST *n, int d)
+ void p_a_n (FILE *f, AST *n, int d)
 {
 if (n == NULL) return;
 switch (n->type)
@@ -235,8 +232,8 @@ switch (n->type)
 				fprintf (f, ")");
 				nl_indent (f, d + 2);
             } else{
-                    fprintf (f, ") : %s");
-                    TYPE_NAMES[STEntry::ste_var_type(n->f.a_routine_decl.ste)];
+                    fprintf (f, ") : %s",
+                        TYPE_NAMES[STEntry::ste_var_type(n->f.a_routine_decl.ste)]);
 					nl_indent (f, d + 2);
             }
 			p_a_n (f, n->f.a_routine_decl.body, d + 2);
@@ -295,13 +292,13 @@ switch (n->type)
 	case ast_block:
 		fprintf (f, "begin");
 		nl_indent (f, d + 2);
-		print_ste_list (f, n->f.a_block.vars, "var ", "", d + 2);
-		print_ast_list (f, n->f.a_block.stmts, ";", d + 2);
+        print_ste_list (f, n->f.a_block.vars, "var ", "; ", d + 2);
+        print_ast_list (f, n->f.a_block.stmts, ";", d + 2);
 		nl_indent (f, d);
 		fprintf (f, "end");
 	    break;
 	case ast_return:
-        fprintf (f, "return");
+        fprintf (f, "return(");
 		p_a_n (f, n->f.a_return.expr, d);
 		fprintf (f, ")");
 		break;
@@ -396,7 +393,7 @@ switch (n->type)
 }
 ///////////////////////////////////////////////////
 /* Print a list of AST nodes. */
-static void print_ast_list (FILE *f, ast_list *L, char *sep, int d)
+ void print_ast_list (FILE *f, ast_list *L, char *sep, int d)
 {
 	for ( ; L != NULL; L = L->tail){
 		p_a_n (f, L->head, d);
@@ -408,20 +405,21 @@ static void print_ast_list (FILE *f, ast_list *L, char *sep, int d)
 }
 ////////////////////////////////////////////////////////////////
 /* Print a list of symbol table entries along with their types. */
-static void
-print_ste_list (FILE *f, ste_list_cell *L, char *prefix, char *sep, int d)
+ void print_ste_list (FILE *f, ste_list_cell *L, char *prefix, char *sep, int d)
 {
     while(L != NULL) {
+        if(L->head){
         fprintf (f, "%s%s : %s", prefix, STEntry::ste_name(L->head),
                     TYPE_NAMES [STEntry::ste_var_type(L->head)]);
-        if (L->tail || d >= 0) fprintf (f, sep); // new page 10
+        if (L->tail!=NULL) fprintf (f, sep); // new page 10
         if (d >= 0) nl_indent (f, d);
+        }
         L=L->tail;
    }
 }
 ///////////////////////////////////////////////////
 /* Print a newline and indent D space. */
-static void nl_indent (FILE *f, int d)
+ void nl_indent (FILE *f, int d)
 {
 	fprintf (f, "\n");
     while (d-- > 0) fprintf (f, " ");

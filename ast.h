@@ -171,6 +171,10 @@ typedef struct ast_node
  int eval_ast_expr (FileDescriptor *, AST *);
  AST *make_ast_node (AST_type type,...);
  void print_ast_node (FILE *, AST *);
+ void nl_indent (FILE *, int);//make new line
+ void p_a_n (FILE *, AST *, int);
+ void print_ast_list (FILE *, ast_list *, char *, int);
+ void print_ste_list (FILE *, ste_list *, char *, char *, int);
 #endif
 
 
