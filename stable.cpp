@@ -1,6 +1,6 @@
 #include "stable.h"
 #include <ctype.h>
-void STable::init(int size,int flod_case_flag=0)
+void STable::init(int size=19,int flod_case_flag=0)
 {
    Size = size;
    Table = new STEList[size];
@@ -117,7 +117,7 @@ STEntry*  STable::FindAndPrintEntry(char *name, FILE *fp)// may be find and prin
 
 void STable::PrintAll(FILE *fp)
 {
-    unsigned long i;
+    int i;
     for (i =0; i < Size; i++)
     {
         fprintf(fp,"T[%d]: %d ste:\t", i, Table[i].Count());

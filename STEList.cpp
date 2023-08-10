@@ -1,6 +1,6 @@
 #include "STEList.h"
-#include <iostream>
-using namespace std;
+#include <stdlib.h>
+
 /**
  * @brief STList::STList
  * default constructor, initialize head and Counter
@@ -38,8 +38,7 @@ STEntry* STEList::FindEntry(char *name)
     STEntry *ste = FindEntry(Entry->Name);
   if(ste)
   {
-      printf("Entry Already exist, nothing Added\n");
-        exit(1);
+        return NULL;
   }
   else
   {

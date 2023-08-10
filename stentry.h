@@ -1,10 +1,9 @@
 #ifndef STENTRY_H
 #define STENTRY_H
 #include <stdio.h>
-#include <string.h>
 #define TYPE_SIZE 5
 #define ENTRY_SIZE 4
-
+#include <cstring>
 
 typedef enum
 {

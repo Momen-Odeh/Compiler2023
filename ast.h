@@ -58,7 +58,7 @@ typedef struct ste_list_cell
 typedef struct ast_list_cell
 {
     ast_node *head; // pointer to  a tree
-    ast_list_cell *tail;  // this is the next pointer that you use typically in the list
+    ast_list_cell* tail;  // this is the next pointer that you use typically in the list
 } ast_list;
 
 ///////////////////////////////////////////////////////////////////////

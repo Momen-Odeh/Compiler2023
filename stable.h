@@ -7,7 +7,7 @@ class STable
 private:
     STEList *Table;   // Dynamic Array of size = Size
     int fold_case;
-    unsigned long Size;
+    int Size;
     void init(int size,int flod_case_flag);
     unsigned long ElfHash(char *str);
     //

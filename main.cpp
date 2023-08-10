@@ -1,12 +1,10 @@
-#include <iostream>
 #include "Parser.h"
 #include "fd.h"
 #include "ast.h"
-using namespace std;
 
 int main(int argc, char *argv[])
 {
-    FileDescriptor * fd = new FileDescriptor("example.txt");
+    FileDescriptor* fd = new FileDescriptor("example.txt");
     FILE *fp;
     fp = fopen("parserOutput.txt","w");
     FILE *fileSTList;

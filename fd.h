@@ -58,8 +58,7 @@ public:
 
     // Opens the file descriptor
     bool openFileDescriptor(char *filename);
-    //
-    void unReadChar(int charNumber);
+
 };
 
 #endif // FD_H

@@ -6,10 +6,9 @@ arguments are the fields of that type of node, in order. */
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdlib.h>
 #include "ast.h"
 #include "stentry.h"
-#include <iostream>
-using namespace std;
 /* Internal routines: */
 
 
@@ -428,7 +427,7 @@ switch (n->type)
 
 
 void fatal_error(char *msg){
-    cerr<<msg<<endl;
+    printf("%s\n",msg);
     exit(1);
 }
 

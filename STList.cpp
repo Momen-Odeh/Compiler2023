@@ -1,10 +1,12 @@
 #include "STList.h"
 #include "ast.h"
-STList::STList(FILE * fp,int size ,int flod_case_flag){
+#include <stdlib.h>
+STList::STList(FILE * fp, FileDescriptor *fdIn, int size, int flod_case_flag){
     this->size = size;
     this->flod_case_flag = flod_case_flag;
     Head = new STable(size,flod_case_flag);
     this->fp = fp;
+    this->fd = fdIn;
 }
 STList::~STList(){
     STable *st;
@@ -31,7 +33,12 @@ STEntry* STList::findEntry(char * str){
     return result;
 }
 STEntry* STList::addEntry(STEntry *Entry){
-    return Head -> AddEntry(Entry);
+    STEntry *ste=Head -> AddEntry(Entry);
+    if(ste==NULL){          //if entry already exsist
+        fd->reportError("multiple declaration");
+        exit(1);
+    }
+    return ste;
 }
 void STList::enter_scope (){
     STable * tmp = new STable(size,flod_case_flag);

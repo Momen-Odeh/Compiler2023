@@ -9,8 +9,8 @@ public:
     SCANNER * scanner;
     TOKEN *token;
     STList *stList;
-    FileDescriptor *fd;
-    Parser(FileDescriptor *fd, FILE *fout);
+    FileDescriptor* fd;
+    Parser(FileDescriptor* fdo, FILE *fout);
     ~Parser();
     void match(LEXEME_TYPE lexType);
     void fatal_error(char *msg);

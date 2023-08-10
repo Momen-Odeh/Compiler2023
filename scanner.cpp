@@ -388,7 +388,7 @@ TOKEN* SCANNER::getInt(char firstChar)
     currentVal+=firstChar;
     char prev =firstChar;
     char c= Fd->getChar();
-    if(prev=='-'&&!isdigit(c))
+    if(prev=='-')//&&!isdigit(c)
     {
         Fd->ungetChar();
         token->type=LX_MINUS;

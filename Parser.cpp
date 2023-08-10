@@ -1,14 +1,15 @@
 #include "Parser.h"
 #include "scanner.h"
 #include "ast.h"
+#include <stdio.h>
 #include <stdlib.h>
 
 //print_ast_node(file,expPm);
 
-Parser::Parser(FileDescriptor *fd,FILE *fout){
-    scanner= new SCANNER(fd);
-    this->fd = fd;
-    stList = new STList(fout);
+Parser::Parser(FileDescriptor* fdo,FILE *fout){
+    this->fd = fdo;
+    scanner= new SCANNER(this->fd);
+    stList = new STList(fout,this->fd);
 }
 
 Parser::~Parser(){
@@ -16,23 +17,23 @@ Parser::~Parser(){
 }
 
 void Parser::fatal_error(char *msg){
-    fd->reportError(msg);
+    this->fd->reportError(msg);
     exit(1);
 }
 
 void Parser::match(LEXEME_TYPE lexType){
     token=scanner->Scan();
     if(lexType != token->type){
-        char *msg;
+        char msg[200];
         sprintf(msg,"mismatch %s, %s",LEX_VALUES[lexType],LEX_VALUES[token->type]);
-        fd->reportError(msg);
+        this->fd->reportError(msg);
         exit(1);
     }
 }
 
 ast_list_cell* Parser::ParseProgram(){
     printf("in parse program\n");
-    ast_list_cell *astList = new ast_list_cell();
+    ast_list_cell* astList = new ast_list_cell();
     ParseDeclList(astList);
     return astList;
 }
@@ -206,7 +207,9 @@ AST* Parser::ParseStmt(){
             ste=new STEntry();
             strcpy(ste->Name,token->str_ptr);
             ste->entry_type=STE_VAR;
-            ste->STERecourd.var.type=stId->STERecourd.var.type;
+            if(stId->entry_type==STE_VAR)ste->STERecourd.var.type = stId->STERecourd.var.type;
+            else if(stId->entry_type==STE_CONST)ste->STERecourd.constant.value = stId->STERecourd.constant.value;
+            else if(stId->entry_type==STE_ROUTINE)ste->STERecourd.routine.result_type = stId->STERecourd.routine.result_type;
             return ParseStmtIdTail(ste);
         }
         else
@@ -564,8 +567,10 @@ AST* Parser::ParseExprFinal(){
         if(ste){
             stEntry=new STEntry();
             strcpy(stEntry->Name,token->str_ptr);
-            stEntry->entry_type=STE_VAR;
-            stEntry->STERecourd.var.type = ste->STERecourd.var.type;
+            stEntry->entry_type=ste->entry_type;
+            if(ste->entry_type==STE_VAR)stEntry->STERecourd.var.type = ste->STERecourd.var.type;
+            else if(ste->entry_type==STE_CONST)stEntry->STERecourd.constant.value = ste->STERecourd.constant.value;
+            else if(ste->entry_type==STE_ROUTINE)stEntry->STERecourd.routine.result_type = ste->STERecourd.routine.result_type;
             return ParseExprFinalIdTail(stEntry);
         }
         else fatal_error("identifier not defined");
