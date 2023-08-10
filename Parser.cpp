@@ -32,20 +32,20 @@ void Parser::match(LEXEME_TYPE lexType){
 }
 
 ast_list_cell* Parser::ParseProgram(){
-    printf("in parse program\n");
+    //printf("in parse program\n");
     ast_list_cell* astList = new ast_list_cell();
     ParseDeclList(astList);
     return astList;
 }
 AST* Parser::ParseDeclList(ast_list_cell *astList){
     token=scanner->Scan();
-    printf("in parse decl list--- %s\n",token->str_ptr);
+    //printf("in parse decl list--- %s\n",token->str_ptr);
     AST * decl;
     if(token->type != LX_EOF){
         decl = ParseDecl();
         match(LX_SEMICOLON);
         astList->head = decl;
-        printf("in parse in inner decl list--- %s\n",token->str_ptr);
+        //printf("in parse in inner decl list--- %s\n",token->str_ptr);
         astList->tail=new ast_list_cell();
         ParseDeclList(astList->tail);
         return astList->head;
@@ -54,12 +54,12 @@ AST* Parser::ParseDeclList(ast_list_cell *astList){
     return make_ast_node(ast_eof);
 }
 AST* Parser::ParseDecl(){
-    printf("in parse decl\n");
+    //printf("in parse decl\n");
     AST* decl = new AST();
     STEntry *ste;
     switch (token->type) {
     case KW_VAR:
-        printf("in var--- %s\n",token->str_ptr);
+        //printf("in var--- %s\n",token->str_ptr);
         ste=new STEntry();
         ste->entry_type=STE_VAR;
         match(LX_IDENTIFIER);
@@ -75,9 +75,9 @@ AST* Parser::ParseDecl(){
         match(LX_IDENTIFIER);
         strcpy(ste->Name,token->str_ptr);
         match(LX_EQ);
-        printf("-----------------%s\n",token->str_ptr);
+        //printf("-----------------%s\n",token->str_ptr);
         ste->STERecourd.constant.value = eval_ast_expr(fd,ParseExpr());
-        printf("-----------------%s\n",token->str_ptr);
+        //printf("-----------------%s\n",token->str_ptr);
         stList->addEntry(ste);
         return make_ast_node(ast_const_decl,ste);
         break;
@@ -91,9 +91,9 @@ AST* Parser::ParseDecl(){
         stel=ParseFormalList();
         match(LX_COLON);
         ste->STERecourd.routine.result_type = ParseType();
-        printf("i am in function %s\n",token->str_ptr);
+        //printf("i am in function %s\n",token->str_ptr);
         decl = ParseBlock();
-        printf("i am in function after block %s\n",token->str_ptr);
+        //printf("i am in function after block %s\n",token->str_ptr);
         decl=make_ast_node(ast_routine_decl,ste, stel, decl);
         stList->exit_scope();
         stList->addEntry(ste);
@@ -199,7 +199,7 @@ AST* Parser::ParseStmt(){
     AST *pred,*conseq,*alter,*Wlhs,*Wrhs,*lower_bound,*upper_bound,*body,*ASTreturn,* block;
     STEntry *stId, *steFor, *steRead, *steWrite,*ste;
     token = scanner->Scan();
-    printf("i am in parse stmt token= %s\n",token->str_ptr);
+    //printf("i am in parse stmt token= %s\n",token->str_ptr);
     switch (token->type) {
     case LX_IDENTIFIER:
         stId = stList->findEntry(token->str_ptr);
@@ -282,11 +282,11 @@ AST* Parser::ParseStmt(){
         return make_ast_node(ast_write,ste);
         break;
     case KW_RETURN:
-        printf("i am in return \n");
+        //printf("i am in return \n");
         match(LX_LPAREN);
         ASTreturn=ParseExpr();
         match(LX_RPAREN);
-        printf("finish return------- %s\n",token->str_ptr);////////////////////////////////////////
+        //printf("finish return------- %s\n",token->str_ptr);////////////////////////////////////////
         return make_ast_node(ast_return,ASTreturn);
         break;
     case KW_BEGIN:
@@ -343,7 +343,7 @@ AST* Parser::ParseStmtList(ast_list_cell *astList){
     if(token->type == KW_IF || token->type == LX_IDENTIFIER || token->type == KW_WHILE || token->type == KW_FOR||
         token->type == KW_READ || token->type == KW_WRITE || token->type == KW_RETURN || token->type == KW_BEGIN )
     {
-        printf("i am in parse stmt token= %s\n",token->str_ptr);
+        //printf("i am in parse stmt token= %s\n",token->str_ptr);
         scanner->ungetToken();
         AST * stmt = ParseStmt();
         match(LX_SEMICOLON);
@@ -360,11 +360,11 @@ AST* Parser::ParseStmtList(ast_list_cell *astList){
 
 AST* Parser::ParseBlock(){
     match( KW_BEGIN);
-    printf("i am in block-- %s\n",token->str_ptr);
+    //printf("i am in block-- %s\n",token->str_ptr);
     ast_list_cell *stmtList = new ast_list();
     ste_list * vars = new ste_list();
     ParseVarDecList(vars);
-    printf("i am in block-- after ParseVarDecList %s\n",token->str_ptr);
+    //printf("i am in block-- after ParseVarDecList %s\n",token->str_ptr);
     ParseStmtList(stmtList);
     match(KW_END);
     return make_ast_node(ast_block, vars, stmtList);
@@ -451,7 +451,7 @@ AST* Parser::ParseExpr(){
 
 AST* Parser::ParseExprTail(AST* expr){
     token=scanner->Scan();
-    printf("%s  expTail:  %s\n",token->str_ptr,LEX_VALUES[token->type]);
+    //printf("%s  expTail:  %s\n",token->str_ptr,LEX_VALUES[token->type]);
     if(token->type==KW_AND || token->type==KW_OR){
         AST_type conj;
         if(token->type==KW_AND)conj=ast_and;
@@ -473,7 +473,7 @@ AST* Parser::ParseExprRel(){
 
 AST* Parser::ParseExprRelTail(AST* expRel){
     token=scanner->Scan();
-    printf("%s  rel:  %s\n",token->str_ptr,LEX_VALUES[token->type]);
+    //printf("%s  rel:  %s\n",token->str_ptr,LEX_VALUES[token->type]);
     if(token->type==LX_EQ || token->type==LX_NEQ ||token->type==LX_LT || token->type==LX_LE ||
         token->type==LX_GT || token->type==LX_GE){
         AST_type relOp;
@@ -502,7 +502,7 @@ AST* Parser::ParseExprPm(){
 
 AST* Parser::ParseExprPmTail(AST* expPm){
     token = scanner->Scan();
-    printf("%s  pm:  %s\n",token->str_ptr,LEX_VALUES[token->type]);
+    //printf("%s  pm:  %s\n",token->str_ptr,LEX_VALUES[token->type]);
     if(token->type==LX_PLUS||token->type==LX_MINUS){
         AST_type opPm;
         if(token->type==LX_PLUS)opPm=ast_plus;
@@ -524,7 +524,7 @@ AST* Parser::ParseExprMd(){
 
 AST* Parser::ParseExprMdTail(AST* expMd){
     token = scanner->Scan();
-    printf("%s  md:  %s\n",token->str_ptr,LEX_VALUES[token->type]);
+    //printf("%s  md:  %s\n",token->str_ptr,LEX_VALUES[token->type]);
     if(token->type==LX_SLASH||token->type==LX_STAR){
         AST_type opMd;
         if(token->type==LX_SLASH)opMd=ast_divide;
@@ -542,7 +542,7 @@ AST* Parser::ParseExprMdTail(AST* expMd){
 
 AST* Parser::ParseExprUo(){
     token = scanner->Scan();
-    printf("%s  uo:  %s\n",token->str_ptr,LEX_VALUES[token->type]);
+    //printf("%s  uo:  %s\n",token->str_ptr,LEX_VALUES[token->type]);
     if(token->type==LX_MINUS||token->type==KW_NOT){
         AST_type unaryType=ast_uminus;
         if(token->type==KW_NOT)unaryType=ast_not;
@@ -560,7 +560,7 @@ AST* Parser::ParseExprFinal(){
     AST *expr;
     STEntry *ste=new STEntry(),*stEntry;
     token = scanner->Scan();
-    printf("%s  parse final:  %s\n",token->str_ptr,LEX_VALUES[token->type]);
+    //printf("%s  parse final:  %s\n",token->str_ptr,LEX_VALUES[token->type]);
     switch (token->type) {//token already read before
     case LX_IDENTIFIER:
         ste=stList->findEntry(token->str_ptr);
@@ -576,7 +576,7 @@ AST* Parser::ParseExprFinal(){
         else fatal_error("identifier not defined");
         break;
     case LX_INTEGER:
-        printf("i am in integer\n");
+        //printf("i am in integer\n");
         return make_ast_node(ast_integer,token->value);
         break;
     case LX_STRING:
