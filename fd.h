@@ -20,7 +20,7 @@ private:
 public:
 
     // Constructor to open a file
-    FileDescriptor(char *FileName = nullptr);
+    FileDescriptor(char *FileName);
 
     // Destructor
     ~FileDescriptor();
@@ -40,6 +40,8 @@ public:
     // Returns the current character number in the line
     int getCharNum();
 
+    void setCharNum(int charNum);
+
     // Closes the file descriptor
     void close();
 
@@ -56,6 +58,7 @@ public:
 
     // Opens the file descriptor
     bool openFileDescriptor(char *filename);
+
 };
 
 #endif // FD_H

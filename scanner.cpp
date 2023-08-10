@@ -32,6 +32,14 @@ LEXEME_TYPE key_type[] = {
 };
 
 
+void SCANNER::ungetToken(){
+    int tokenLength=Fd->getCharNum()-scanCharNumber;
+    if(Fd->getCharNum()< scanCharNumber){
+        Fd->setCharNum(0);
+    }
+    else Fd->setCharNum(Fd->getCharNum()-tokenLength);
+}
+
 LEXEME_TYPE SCANNER::getClass(char c)
 {
     if(isalpha(c) || c == '_')
@@ -87,6 +95,7 @@ SCANNER::SCANNER (FileDescriptor *fd)
 
 TOKEN* SCANNER::Scan()
 {
+    scanCharNumber = Fd->getCharNum();
     TOKEN *token = new TOKEN;
     char c = Fd->getChar();
     if(getClass(c) == LX_IDENTIFIER)
@@ -342,7 +351,7 @@ TOKEN* SCANNER::getString(char firstChar)
     TOKEN *token = new TOKEN;
     char* charPtr;
     string currentVal="";
-    currentVal+=firstChar;
+//    currentVal+=firstChar;
     char c= Fd->getChar();
     while(c != '"')
     {
@@ -351,7 +360,7 @@ TOKEN* SCANNER::getString(char firstChar)
         currentVal+=c;
         c= Fd->getChar();
     }
-    currentVal+=c;
+//    currentVal+=c;
     c= Fd->getChar();
     if(isDelimiter(c))
     {
@@ -379,7 +388,7 @@ TOKEN* SCANNER::getInt(char firstChar)
     currentVal+=firstChar;
     char prev =firstChar;
     char c= Fd->getChar();
-    if(prev=='-'&&!isdigit(c))
+    if(prev=='-')//&&!isdigit(c)
     {
         Fd->ungetChar();
         token->type=LX_MINUS;

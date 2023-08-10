@@ -1,13 +1,13 @@
 #ifndef STABLE_H
 #define STABLE_H
-#include "stlist.h"
+#include "STEList.h"
 #define DEFAULT_SIZE 19
 class STable
 {
 private:
-    STList *Table;   // Dynamic Array of size = Size
+    STEList *Table;   // Dynamic Array of size = Size
     int fold_case;
-    unsigned long Size;
+    int Size;
     void init(int size,int flod_case_flag);
     unsigned long ElfHash(char *str);
     //
@@ -23,7 +23,7 @@ public:
     ~STable();
     STable(unsigned long size);
     void Reset(unsigned long size);// clear_symbol_table
-    STEntry* AddEntry(char *name, j_type type);//Put_symbol
+    STEntry* AddEntry(STEntry *Entry);//Put_symbol
     STEntry* FindAndPrintEntry(char *name, FILE *fp);//Get_symbol
     void PrintAll(FILE *fp);//print_symbol_stats
     void Clear();

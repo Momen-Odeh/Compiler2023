@@ -1,9 +1,9 @@
 #include "stable.h"
 #include <ctype.h>
-void STable::init(int size,int flod_case_flag=0)
+void STable::init(int size=19,int flod_case_flag=0)
 {
    Size = size;
-   Table = new STList[size];
+   Table = new STEList[size];
    fold_case = flod_case_flag;
    number_entries = 0;
    number_probes =0 ;
@@ -69,17 +69,17 @@ unsigned long STable::ElfHash( char *str )
  * @param type : type of Entry. See the Main function for example how to find it
  * @return  true if added and false otherwise, the List Table[index] Already returns this for you
  */
-STEntry* STable::AddEntry(char *name, j_type type)
+STEntry* STable::AddEntry(STEntry *Entry)
 {
 
-    unsigned long index = ElfHash(name);
+    unsigned long index = ElfHash(Entry->Name);
 
     if(fold_case)
     {
-        toLowerCase(name);
+        toLowerCase(Entry->Name);
     }
 
-    STEntry* ste = Table[index].AddEntry(name, type);
+    STEntry* ste = Table[index].AddEntry(Entry);
     number_entries++;
     number_probes++;
     return ste;
@@ -117,7 +117,7 @@ STEntry*  STable::FindAndPrintEntry(char *name, FILE *fp)// may be find and prin
 
 void STable::PrintAll(FILE *fp)
 {
-    unsigned long i;
+    int i;
     for (i =0; i < Size; i++)
     {
         fprintf(fp,"T[%d]: %d ste:\t", i, Table[i].Count());

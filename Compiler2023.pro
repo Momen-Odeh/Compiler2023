@@ -9,25 +9,28 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    Parser.cpp \
+    STEList.cpp \
+    STList.cpp \
+    ast.cpp \
     fd.cpp \
     fdTest.cpp \
     main.cpp \
     mainST.cpp \
-    mainwindow.cpp \
     scanner.cpp \
-    stable.cpp \
-    stlist.cpp
+    stable.cpp
 
 HEADERS += \
+    Parser.h \
+    STEList.h \
+    STList.h \
+    ast.h \
     fd.h \
-    mainwindow.h \
     scanner.h \
     stable.h \
-    stentry.h \
-    stlist.h
+    stentry.h
 
-FORMS += \
-    mainwindow.ui
+FORMS +=
 
 TRANSLATIONS += \
     Compiler2023_en_GB.ts
