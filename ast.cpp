@@ -269,7 +269,7 @@ switch (n->type)
         fprintf (f, "od");// new page
 		break;
 	case ast_for:
-        fprintf (f, "for %s = ", STEntry::ste_name(n->f.a_for.var));
+        fprintf (f, "for %s := ", STEntry::ste_name(n->f.a_for.var));
         p_a_n (f, n->f.a_for.lower_bound, d);
         fprintf (f, " to ");
         p_a_n (f, n->f.a_for.upper_bound, d);
@@ -295,7 +295,7 @@ switch (n->type)
 		nl_indent (f, d + 2);
         print_ste_list (f, n->f.a_block.vars, "var ", "; ", d + 2);
         print_ast_list (f, n->f.a_block.stmts, ";", d + 2);
-		nl_indent (f, d);
+//		nl_indent (f, d);
 		fprintf (f, "end");
 	    break;
 	case ast_return:
@@ -398,8 +398,8 @@ switch (n->type)
 {
 	for ( ; L != NULL; L = L->tail){
 		p_a_n (f, L->head, d);
-		if (L->tail || d>0){
-			fprintf (f, sep);
+        if (L->tail && d>0){
+            fprintf (f, sep);
 			if (L->tail && d >= 0) nl_indent (f, d);
 		}
 	}
@@ -412,7 +412,7 @@ switch (n->type)
         if(L->head){
         fprintf (f, "%s%s : %s", prefix, STEntry::ste_name(L->head),
                     TYPE_NAMES [STEntry::ste_var_type(L->head)]);
-        if (L->tail!=NULL) fprintf (f, sep); // new page 10
+        if (L->tail && L->tail->head) fprintf (f, sep); // new page 10
         if (d >= 0) nl_indent (f, d);
         }
         L=L->tail;

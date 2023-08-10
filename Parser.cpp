@@ -9,7 +9,10 @@ Parser::Parser(FileDescriptor *fd,FILE *fout){
     scanner= new SCANNER(fd);
     this->fd = fd;
     stList = new STList(fout);
-    file=fopen("parserOutput88.txt","w");
+}
+
+Parser::~Parser(){
+    delete stList;
 }
 
 void Parser::fatal_error(char *msg){
@@ -410,6 +413,7 @@ AST* Parser::ParseArgListTail(ast_list_cell *astList){
     AST* args =NULL;
     token=scanner->Scan();
     if(token->type!=LX_RPAREN){
+        scanner->ungetToken();
         args=ParseArgs(astList);
         token=scanner->Scan();
     }
