@@ -2,6 +2,7 @@
 #define STLIST_H
 #include "stable.h"
 #include "stentry.h"
+#include "ast.h"
 class STList {
 private:
     STable * Head;
@@ -17,7 +18,7 @@ public:
     STEntry* addEntry(STEntry *Entry);
     void enter_scope ();
     void exit_scope ();
-
+    void addSTEList(ste_list *stel);//not used currentlly
 };
 
 #endif // STLIST_H

@@ -33,7 +33,6 @@ LEXEME_TYPE key_type[] = {
 
 
 void SCANNER::ungetToken(){
-    cout<<"********************************before :"<<Fd->getCharNum()<<endl;
     int tokenLength=Fd->getCharNum()-scanCharNumber;
     if(Fd->getCharNum()< scanCharNumber){
         Fd->setCharNum(0);
@@ -352,7 +351,7 @@ TOKEN* SCANNER::getString(char firstChar)
     TOKEN *token = new TOKEN;
     char* charPtr;
     string currentVal="";
-    currentVal+=firstChar;
+//    currentVal+=firstChar;
     char c= Fd->getChar();
     while(c != '"')
     {
@@ -361,7 +360,7 @@ TOKEN* SCANNER::getString(char firstChar)
         currentVal+=c;
         c= Fd->getChar();
     }
-    currentVal+=c;
+//    currentVal+=c;
     c= Fd->getChar();
     if(isDelimiter(c))
     {

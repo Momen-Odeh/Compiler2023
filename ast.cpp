@@ -257,6 +257,7 @@ switch (n->type)
 			nl_indent (f, d + 2);
             p_a_n (f, n->f.a_if.altern, d + 2);
 		}
+        fprintf (f, " fi");
 	    break;
 	case ast_while:
 		fprintf (f, "while ");
@@ -309,10 +310,10 @@ switch (n->type)
         fprintf (f, "%d", n->f.a_integer.value);
 		break; 
 	case ast_float:
-        fprintf (f, "%f , n->f.a float.value");
+        fprintf (f, "%f" , n->f.a_float.value);
 		break; 
 	case ast_string:
-        fprintf (f, "\"%s\", n->f.a_string.string");
+        fprintf (f, "\"%s\"", n->f.a_string.string);
 		break;
 	case ast_boolean:
 		fprintf (f, n->f.a_boolean.value ? "true" : "false");

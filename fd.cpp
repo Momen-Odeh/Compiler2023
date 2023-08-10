@@ -1,7 +1,5 @@
 #include "fd.h"
 #include <cstring>
-#include <iostream>
-using namespace std;
 // Constructor to open a file
 FileDescriptor::FileDescriptor(char *FileName) :
     fp(nullptr),                    // Initialize the FILE pointer to null
@@ -120,15 +118,14 @@ void FileDescriptor::reportError(char *msg) {
     if(buffer[line_length-1] == EOF || buffer[line_length-1] == '\n'){
         buffer[line_length-1]=0;
     }
-    cout<< buffer <<endl;
+    printf("%s\n",buffer);
     for(int i=0;i<char_number-1;i++){
-        if(buffer[i]=='\t')cout<<'\t';
-        else cout<<' ';
+        if(buffer[i]=='\t')printf("\t");
+        else printf(" ");
     }
-    cout << '^'<<endl;
-    cout << "Error: " << '"' << msg << '"' << " on line " << line_number << " of "<< getFileName() << endl;
+    printf("^\n");
+    printf("Error: \" %s \" on line %d of %s\n",msg,line_number, getFileName());
 }
-
 
 void FileDescriptor::ungetChar() {
     if (char_number > 0) {

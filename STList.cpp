@@ -1,5 +1,5 @@
 #include "STList.h"
-
+#include "ast.h"
 STList::STList(FILE * fp,int size ,int flod_case_flag){
     this->size = size;
     this->flod_case_flag = flod_case_flag;
@@ -46,4 +46,15 @@ void STList::exit_scope (){
     STable * tmp = Head;
     Head = Head->next;
     delete tmp;
+}
+
+void STList::addSTEList(ste_list *stel){
+    while(stel->head){
+        STEntry *ste =new STEntry();
+        strcpy(ste->Name,stel->head->Name);
+        ste->entry_type=stel->head->entry_type;
+        ste->STERecourd.var.type=stel->head->STERecourd.var.type;
+        this->addEntry(ste);
+        stel=stel->tail;
+    }
 }
