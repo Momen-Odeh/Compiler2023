@@ -206,7 +206,7 @@ AST* Parser::ParseStmt(){
         if(stId){
             ste=new STEntry();
             strcpy(ste->Name,token->str_ptr);
-            ste->entry_type=STE_VAR;
+            ste->entry_type=stId->entry_type;
             if(stId->entry_type==STE_VAR)ste->STERecourd.var.type = stId->STERecourd.var.type;
             else if(stId->entry_type==STE_CONST)ste->STERecourd.constant.value = stId->STERecourd.constant.value;
             else if(stId->entry_type==STE_ROUTINE)ste->STERecourd.routine.result_type = stId->STERecourd.routine.result_type;
