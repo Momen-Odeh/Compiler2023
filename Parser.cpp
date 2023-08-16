@@ -214,6 +214,7 @@ AST* Parser::ParseStmt(){
         }
         else
         {
+            printf("**************token %s\n",token->str_ptr);
             fatal_error("identifire not declare in ParseStmt");
         }
         break;
@@ -365,6 +366,8 @@ AST* Parser::ParseBlock(){
     ste_list * vars = new ste_list();
     ParseVarDecList(vars);
     //printf("i am in block-- after ParseVarDecList %s\n",token->str_ptr);
+
+    printf("******************token is %s \n",token->str_ptr);
     ParseStmtList(stmtList);
     match(KW_END);
     return make_ast_node(ast_block, vars, stmtList);

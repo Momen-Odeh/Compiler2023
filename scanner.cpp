@@ -38,6 +38,7 @@ void SCANNER::ungetToken(){
         Fd->setCharNum(0);
     }
     else Fd->setCharNum(Fd->getCharNum()-tokenLength);
+    printf("move from %d to %d with scanCharNumber = %d\n",Fd->getCharNum()+tokenLength,Fd->getCharNum(),scanCharNumber);
 }
 
 LEXEME_TYPE SCANNER::getClass(char c)
@@ -98,6 +99,7 @@ TOKEN* SCANNER::Scan()
     scanCharNumber = Fd->getCharNum();
     TOKEN *token = new TOKEN;
     char c = Fd->getChar();
+    if(Fd->getCharNum()==1)scanCharNumber=0;
     if(getClass(c) == LX_IDENTIFIER)
     {
         return getId(c);
